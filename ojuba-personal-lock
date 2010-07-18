@@ -1,0 +1,498 @@
+#! /usr/bin/env python
+# -*- coding: UTF-8 -*-
+"""
+Ojuba Personal Lock
+Copyright © 2010 Ojuba.org, Muayyad Saleh Alsadi<alsadi@ojuba.org>
+
+PyGTK+ front-end for fuse-encfs
+
+    Released under terms of Waqf Public License.
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the latest version Waqf Public License as
+    published by Ojuba.org.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    The Latest version of the license can be found on
+    "http://waqf.ojuba.org/"
+
+"""
+
+#FIXME: use os.path.ismount to check if mounted
+#FIXME: replace info(_("Done.")) with notification
+#TODO: on exit warn if some folder are still mounted
+
+import sys, os, os.path, re, gettext
+import glib, gtk, pynotify
+
+from subprocess import Popen,PIPE
+from glob import glob
+
+_ps=[]
+exedir=os.path.dirname(sys.argv[0])
+exebase=os.path.basename(sys.argv[0])
+ld=os.path.join(exedir,'..','share','locale')
+if not os.path.isdir(ld): ld=os.path.join(exedir, 'locale')
+gettext.install('ojuba-personal-lock', ld, unicode=0)
+datadir=os.path.join(exedir,'..','share',exebase)
+if not os.path.isdir(datadir): datadir=os.path.join(exedir, 'data')
+
+def run_in_bg(cmd):
+  global _ps
+  setsid = getattr(os, 'setsid', None)
+  if not setsid: setsid = getattr(os, 'setpgrp', None)
+  _ps=filter(lambda x: x.poll()!=None,_ps) # remove terminated processes from _ps list
+  _ps.append(Popen(cmd,0,'/bin/sh',shell=True, preexec_fn=setsid))
+
+def run_file_man(mp):
+  run_in_bg("xdg-open '%s'" % mp)
+
+
+def sure(msg, w=None):
+  dlg=gtk.MessageDialog(w, gtk.DIALOG_MODAL,gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO, msg)
+  dlg.connect("response", lambda *args: dlg.hide())
+  r=dlg.run()
+  dlg.destroy()
+  return r==gtk.RESPONSE_YES
+
+def info(msg, w=None):
+  dlg=gtk.MessageDialog(w, gtk.DIALOG_MODAL,gtk.MESSAGE_INFO, gtk.BUTTONS_OK, msg)
+  dlg.connect("response", lambda *args: dlg.hide())
+  r=dlg.run()
+  dlg.destroy()
+
+def error(msg, w=None):
+  dlg=gtk.MessageDialog(w, gtk.DIALOG_MODAL,gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, msg)
+  dlg.connect("response", lambda *args: dlg.hide())
+  r=dlg.run()
+  dlg.destroy()
+
+def askpass(msg, verify=False, w=None):
+  dlg = gtk.Dialog(_("Password"), None,
+    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+    (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
+    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+  dlg.set_default_response(gtk.RESPONSE_ACCEPT)
+  
+  vb=dlg.vbox
+  hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
+  hb.pack_start(gtk.Label(msg),False, False, 0)
+  
+  hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
+  hb.pack_start(gtk.Label(_("Enter Password:")),False, False, 0)
+  e=gtk.Entry()
+  hb.pack_start(e ,False, False, 0)
+  e.set_visibility(False)
+  e.set_activates_default(True)
+  
+  if verify:
+    hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
+    hb.pack_start(gtk.Label(_("Verify Password:")),False, False, 0)
+    e2 = gtk.Entry()
+    hb.pack_start(e2 ,False, False, 0)
+    e2.set_visibility(False)
+    e2.set_activates_default(True)
+
+  vb.show_all()
+  while(True):
+    r = dlg.run()==gtk.RESPONSE_ACCEPT
+    if not r: break
+    p = e.get_text()
+    if verify:
+      p2 = e2.get_text()
+      if p==p2: break
+      error(_("Passwords does not match."))
+    else: break
+
+  dlg.destroy()
+  return r and p or None
+
+class applet(object):
+  _ch_re=re.compile(r'\\(0\d\d)')
+  _base_dir=os.path.expanduser('~/Personal')
+  _base_enc_dir=os.path.expanduser('~/Personal/.encrypted')
+  _conf_fn=os.path.expanduser('~/Personal/.ojuba-personal-lock.rc')
+  def __init__(self):
+    self._paths = []
+    self._load_conf()
+    self._init_about_dialog()
+    self._init_new_dialog()
+    self._init_add_dialog()
+    self._init_menu()
+    self._s=gtk.status_icon_new_from_file(os.path.join(datadir,'ojuba-personal-lock.svg'))
+    self._s.connect('popup-menu',self._popup_cb)
+    self._s.connect('activate', lambda *a: self.about_dlg.run())
+    pynotify.init('OjubaPersonalLockApplet')
+    self._notifycaps = pynotify.get_server_caps ()
+    self._notify=pynotify.Notification("OjubaPersonalLockApplet")
+    self._notify.attach_to_status_icon(self._s)
+    self._notify.set_property('icon-name','ojuba-personal-lock')
+    glib.timeout_add(500, self._timer_cb)
+
+  def _mount_check(self, enc_dir, dec_dir):
+    return os.path.isdir(dec_dir) and \
+      os.path.isdir(enc_dir) and \
+      os.path.exists(os.path.join(enc_dir,".encfs6.xml"))
+
+  def _mount(self, enc_dir, dec_dir):
+    if not self._mount_check(enc_dir, dec_dir): return -1, "", ""
+    passwd=askpass(_("Type password below to decrypt [%s].") % enc_dir)
+    if not self._mount_check(enc_dir, dec_dir): return -1, "", ""
+    cmd = """encfs -i %d -S '%s' '%s' """ % (30, enc_dir, dec_dir)
+    p=Popen(cmd,0,'/bin/sh', shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    out, err = p.communicate(passwd)
+    r = p.returncode
+    return r, out, err
+
+  def _create_new_check(self, enc_dir, dec_dir):
+    return not os.path.exists(enc_dir) or not os.path.exists(os.path.join(enc_dir,".encfs6.xml"))
+
+  def _create_new(self, enc_dir, dec_dir, paranoid=False):
+    if not self._create_new_check(enc_dir, dec_dir): return -1, "", ""
+    passwd=askpass(_("Type new password below\nIt will be used to decrypt [%s].") % enc_dir, True)
+    if not passwd: return -2, "", ""
+    if not self._create_new_check(enc_dir, dec_dir): return -1, "", ""
+    if not os.path.exists(enc_dir):
+      try: os.makedirs(enc_dir)
+      except OSError: return -1, "", _("Could not create [%s] folder") % enc_dir
+    if not os.path.exists(dec_dir):
+      try: os.makedirs(dec_dir)
+      except OSError: return -1, "", _("Could not create [%s] folder") % dec_dir
+    cmd="encfs -S '%s' '%s'" % (enc_dir, dec_dir)
+    i="\n%s\n%s\n" % (passwd, passwd)
+    if paranoid: i="p"+i
+    p=Popen(cmd,0,'/bin/sh', shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    out, err = p.communicate(i)
+    r = p.returncode
+    return r, out, err
+
+  def _parse_conf(self, s):
+    # unique label = path
+    l1=map(lambda k: k.split('=',1), filter(lambda j: j,map(lambda i: i.strip(),s.splitlines())) )
+    l2=map(lambda a: (a[0].strip(),a[1].strip()),filter(lambda j: len(j)==2,l1))
+    if len(l1)==len(l2):
+      self._paths = l2
+      return True
+    return False
+
+  def _load_conf(self):
+    s=''
+    if os.path.exists(self._conf_fn):
+      try: s=open(self._conf_fn,'r').read()
+      except OSError: s=""
+    self._parse_conf(s)
+
+  def _save_conf(self):
+    s='\n'.join(map(lambda a: "=".join(a) , self._paths ))
+    d=os.path.dirname(self._conf_fn)
+    if not os.path.isdir(d):
+      try: os.makedirs(d)
+      except OSError: return
+    try: open(self._conf_fn,'w').write(s)
+    except OSError: pass
+
+  def _timer_cb(self, *args):
+    return True
+
+  def _hide_cb(self, w, *args): w.hide(); return True
+
+  def _init_add_dialog(self):
+    self.add_dlg = gtk.Dialog("Add already created encrypted folder", None,
+      gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+      (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
+      gtk.STOCK_ADD, gtk.RESPONSE_ACCEPT))
+    self.add_dlg.set_default_response(gtk.RESPONSE_ACCEPT)
+    self.add_dlg.connect('delete-event', self._hide_cb)
+    self.add_dlg.connect('response', self._hide_cb)
+    vb=self.add_dlg.vbox
+
+    hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
+    hb.pack_start(gtk.Label(_("Encrypted Folder:")),False, False, 0)
+    b=gtk.FileChooserButton(_("Select encrypted folder"))
+    b.set_action(gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
+    b.connect("selection-changed", lambda bb: self._add_label.set_text(os.path.basename(bb.get_filename())))
+    hb.pack_start(b ,False, False, 0)
+    self._add_enc_dir = b
+    
+    hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
+    hb.pack_start(gtk.Label(_("Label:")),False, False, 0)
+    e=gtk.Entry()
+    e.set_activates_default(True)
+    hb.pack_start(e ,False, False, 0)
+    self._add_label = e
+    
+    hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
+    b=gtk.CheckButton(_("Decrypt and open"))
+    b.set_active(True)
+    hb.pack_start(b ,False, False, 0)
+    self._add_dec = b
+    
+    vb.show_all()
+
+  def _add_cb(self, i):
+    while(True):
+      r=self.add_dlg.run() != gtk.RESPONSE_ACCEPT
+      if r: return
+      l=self._add_label.get_text().strip()
+      if not l:
+        error("Type non-empty label.")
+        continue
+      d=self._add_enc_dir.get_filename()
+      if not os.path.exists(os.path.join(d,".encfs6.xml")):
+        error("The folder [%s] was not encrypted with encfs.\nSelect another folder." % d)
+        continue
+      break
+    m=self._add_dec.get_active()
+    self._paths.append((l,d,))
+    self._refresh_menu()
+    self._save_conf()
+    if m: self._mount_cb(None, (l,d))
+    else: info(_("Done."))
+
+  def _init_new_dialog(self):
+    self.new_dlg = gtk.Dialog("create new encrypted folder", None,
+      gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+      (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
+      gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+    self.new_dlg.set_default_response(gtk.RESPONSE_ACCEPT)
+    self.new_dlg.connect('delete-event', self._hide_cb)
+    self.new_dlg.connect('response', self._hide_cb)
+    vb=self.new_dlg.vbox
+
+    hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
+    hb.pack_start(gtk.Label(_("Label:")),False, False, 0)
+    e=gtk.Entry()
+    e.set_activates_default(True)
+    hb.pack_start(e ,False, False, 0)
+    self._new_label = e
+
+    hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
+    b=gtk.CheckButton(_("Create in default location"))
+    b.set_tooltip_text(_('use "Personal" folder inside users home'))
+    hb.pack_start(b ,False, False, 0)
+    self._new_def = b
+
+    p_hb=hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
+    b.connect('toggled', lambda bb: p_hb.set_sensitive(not bb.get_active()) )
+    b.set_active(True)
+    hb.pack_start(gtk.Label(_("Create inside:")),False, False, 0)
+    b=gtk.FileChooserButton(_("Select encrypted folder parent"))
+    b.set_tooltip_text(_("Select encrypted folder parent"))
+    b.set_action(gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
+    hb.pack_start(b ,False, False, 0)
+    self._new_enc_p_dir = b
+
+    hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
+    b=gtk.CheckButton(_("Paranoid mode"))
+    b.set_tooltip_text(_("more secure but slower mode"))
+    hb.pack_start(b ,False, False, 0)
+    self._new_paranoid = b
+
+    vb.show_all()
+
+  def _new_cb(self, i):
+    while(True):
+      r=self.new_dlg.run() != gtk.RESPONSE_ACCEPT
+      if r: return
+      l=self._new_label.get_text().strip()
+      if not l:
+        error("Type non-empty label.")
+        continue
+      if self._new_def.get_active(): p=self._base_enc_dir
+      else: p=self._new_enc_p_dir.get_filename()
+      d=os.path.join(p,l)
+      if os.path.exists(d):
+        error("The folder [%s] already exists." % d)
+        continue
+      break
+    dd=os.path.join(self._base_dir,l)
+    r,o,e=self._create_new(d, dd, self._new_paranoid.get_active())
+    if r!=0:
+      error(_("Error while creating encrypted folder\n%s\n%s") % (o,e))
+      return
+    self._paths.append((l,d,))
+    self._refresh_menu()
+    self._save_conf()
+    run_file_man(dd)
+    info(_("Done."))
+    
+
+  def _init_about_dialog(self):
+    self.about_dlg=gtk.AboutDialog()
+    self.about_dlg.set_default_response(gtk.RESPONSE_CLOSE)
+    self.about_dlg.connect('delete-event', self._hide_cb)
+    self.about_dlg.connect('response', self._hide_cb)
+    try: self.about_dlg.set_program_name("ojuba-personal-lock")
+    except: pass
+    self.about_dlg.set_name(_("Ojuba Personal Lock"))
+    #self.about_dlg.set_version(version)
+    self.about_dlg.set_copyright("Copyright © 2010 ojuba.org")
+    self.about_dlg.set_comments(_("Encrypt your personal folders"))
+    self.about_dlg.set_license("""
+    Released under terms of Waqf Public License.
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the latest version Waqf Public License as
+    published by Ojuba.org.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    The Latest version of the license can be found on
+    "http://waqf.ojuba.org/"
+
+""")
+    self.about_dlg.set_website("http://git.ojuba.org/cgit/ojuba-personal-lock/about/")
+    self.about_dlg.set_website_label("http://git.ojuba.org/cgit/ojuba-personal-lock/about/")
+    self.about_dlg.set_authors(["Muayyad Saleh Alsadi <alsadi@ojuba.org>"])
+    #self.about_dlg.set_documenters(documenters)
+    #self.about_dlg.set_artists(artists)
+    #self.about_dlg.set_translator_credits(translator_credits)
+    #self.about_dlg.set_logo(logo)
+    self.about_dlg.set_logo_icon_name("ojuba-personal-lock")
+
+  def _init_menu(self):
+    self._menu = gtk.Menu()
+    i = gtk.ImageMenuItem(gtk.STOCK_NEW)
+    i.connect('activate', self._new_cb)
+    self._menu.add(i)
+
+    i = gtk.ImageMenuItem(gtk.STOCK_ADD)
+    i.connect('activate', self._add_cb)
+    self._menu.add(i)
+
+    self._menu.add(gtk.SeparatorMenuItem())
+
+    self._mount_submenu = gtk.Menu()
+    self._mount_menu = i = gtk.MenuItem(_("Decrypt"))
+    i.set_submenu(self._mount_submenu)
+    self._menu.add(i)
+
+    self._unmount_submenu = gtk.Menu()
+    self._unmount_menu = i = gtk.MenuItem(_("Unmount"))
+    i.set_submenu(self._unmount_submenu)
+    self._menu.add(i)
+
+    self._menu.add(gtk.SeparatorMenuItem())
+
+    i = gtk.ImageMenuItem(gtk.STOCK_ABOUT)
+    i.connect('activate', lambda *args: self.about_dlg.run())
+    self._menu.add(i)
+    
+    i = gtk.ImageMenuItem(gtk.STOCK_QUIT)
+    i.connect('activate', gtk.main_quit)
+    self._menu.add(i)
+
+    self._menu.show_all()
+    self._refresh_menu()
+
+  def get_mounted(self):
+    l=map(lambda i: i.split(), open('/proc/mounts','r').readlines())
+    d=filter(lambda i: len(i)==6 and i[0].startswith('encfs') , l)
+    if not d: return []
+    return set(map(lambda i: self._ch_re.sub(lambda m: chr(int(m.group(1),8)), i[1]), d ))
+
+  def _unmount_cb(self, m, d):
+    cmd = "fusermount -u '%s'" % d
+    p=Popen(cmd,0,'/bin/sh', shell=True, stdout=PIPE, stderr=PIPE)
+    o, e = p.communicate()
+    r = p.returncode
+    if r==0:
+      self._refresh_menu()
+      info(_("Done."))
+    else:
+      error(_("Error while unmounting encrypted folder\n%s\n%s") % (o,e))
+
+  def _mount_cb(self, m, i):
+    l,d=i
+    dd=os.path.join(self._base_dir,l)
+    if not os.path.isdir(dd):
+      try: os.makedirs(dd)
+      except OSError: dd=None
+    if not dd: error(_("Could not create target folder [%s].") % dd)
+    r,o,e=self._mount(d, dd)
+    if r!=0:
+      error(_("Error while mounting encrypted folder\n%s\n%s") % (o,e))
+      return
+    self._refresh_menu()
+    run_file_man(dd)
+    info(_("Done."))
+
+  def _refresh_menu(self):
+    ls=self.get_mounted()
+    m = gtk.Menu()
+    for j in ls:
+      i=gtk.MenuItem(os.path.basename(j))
+      i.connect('activate', self._unmount_cb, j)
+      m.add(i)
+    self._unmount_submenu = m
+    s= self._unmount_menu.get_submenu()
+    self._unmount_menu.set_submenu(m)
+    del s
+
+    m = gtk.Menu()
+    for l,j in self._paths:
+      if os.path.join(self._base_dir, l) in ls: continue
+      i=gtk.MenuItem(l)
+      i.connect('activate', self._mount_cb, (l, j))
+      m.add(i)
+    self._mount_submenu = m
+    s= self._mount_menu.get_submenu()
+    self._mount_menu.set_submenu(m)
+    del s
+
+    self._menu.show_all()
+
+  def _popup_cb(self, s, button, time):
+    self._menu.popup(None, None, gtk.status_icon_position_menu, button, time, s)
+
+bus, bus_name, bus_object=None,None,None
+try:
+  import dbus
+  import dbus.service
+  #import gobject # for gobject.MainLoop() if no gtk is to be used
+  from dbus.mainloop.glib import DBusGMainLoop
+
+  dbus_loop = DBusGMainLoop(set_as_default=True)
+  bus = dbus.SessionBus()
+except ImportError: pass
+
+def init_dbus():
+  global bus_name, bus_object
+  if not bus: return
+  class Manager(dbus.service.Object):
+    def __init__(self, bus, path):
+          dbus.service.Object.__init__(self,bus,path)
+
+    @dbus.service.method("org.ojuba.PersonalLock", in_signature='', out_signature='s')
+    def Version(self):
+      return "0.3.0"
+  # values from /usr/include/dbus-1.0/dbus/dbus-shared.h
+  r=bus.request_name('org.ojuba.PersonalLock', flags=0x4)
+  if r!=1:
+    print "Another process own OjubaVirtualCD Service, pass request to it: "
+    trials=0; appletbus=False
+    while(appletbus==False and trials<20):
+      print ".",
+      try:
+        appletbus=bus.get_object("org.ojuba.PersonalLock","/Manager"); break
+      except:
+        appletbus=False
+      time.sleep(1); trials+=1
+    print "*"
+    print "already running ..."
+    exit(-1)
+  bus_name = dbus.service.BusName("org.ojuba.PersonalLock", bus)
+  bus_object = Manager(bus, '/Manager')
+
+
+def applet_main():
+  a=applet()
+  init_dbus()
+  gtk.main()
+
+if __name__ == "__main__":
+  applet_main()
+

@@ -1,0 +1,156 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ojuba-personal-lock 0.2.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-07-18 22:45+0300\n"
+"PO-Revision-Date: 2009-01-28 04:17+0200\n"
+"Last-Translator: Muayyad Saleh Alsadi <alsadi@ojuba.org>\n"
+"Language-Team: Arabic <ar@li.org>\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../ojuba-personal-lock.desktop.in.h:1
+msgid "Folders Encryption"
+msgstr "تشفير المجلدات"
+
+#: ../ojuba-personal-lock.desktop.in.h:2
+msgid "Folders Encryption Tool"
+msgstr "أداة تشفير المجلدات"
+
+#: ../ojuba-personal-lock.desktop.in.h:3 ../ojuba-personal-lock:327
+msgid "Ojuba Personal Lock"
+msgstr "خزنة أعجوبة الشخصية"
+
+#: ../ojuba-personal-lock:73
+msgid "Password"
+msgstr "كلمة السر"
+
+#: ../ojuba-personal-lock:84
+msgid "Enter Password:"
+msgstr "أدخل كلمة السر:"
+
+#: ../ojuba-personal-lock:92
+msgid "Verify Password:"
+msgstr "تحقق من كلمة السر"
+
+#: ../ojuba-personal-lock:106
+msgid "Passwords does not match."
+msgstr "كلمتي السر غير متطابقتين."
+
+#: ../ojuba-personal-lock:141
+#, c-format
+msgid "Type password below to decrypt [%s]."
+msgstr "اكتب كلمة السر اللازمة لفك تشفير [%s]."
+
+#: ../ojuba-personal-lock:154
+#, c-format
+msgid ""
+"Type new password below\n"
+"It will be used to decrypt [%s]."
+msgstr ""
+"اكتب كلمة سر جديدة أدناه\n"
+"ستستخدم لفك تشفير [%s]."
+
+#: ../ojuba-personal-lock:159 ../ojuba-personal-lock:162
+#, c-format
+msgid "Could not create [%s] folder"
+msgstr "غير قادر على إنشاء مجلد [%s]"
+
+#: ../ojuba-personal-lock:212
+msgid "Encrypted Folder:"
+msgstr "المجلد المشفر:"
+
+#: ../ojuba-personal-lock:213
+msgid "Select encrypted folder"
+msgstr "اختر المجلد المشفر"
+
+#: ../ojuba-personal-lock:220 ../ojuba-personal-lock:265
+msgid "Label:"
+msgstr "العنوان:"
+
+#: ../ojuba-personal-lock:227
+msgid "Decrypt and open"
+msgstr "فك التشفير وفتح"
+
+#: ../ojuba-personal-lock:252 ../ojuba-personal-lock:317
+#: ../ojuba-personal-lock:402 ../ojuba-personal-lock:419
+msgid "Done."
+msgstr "تم."
+
+#: ../ojuba-personal-lock:272
+msgid "Create in default location"
+msgstr "إنشاء في المكان التلقائي"
+
+#: ../ojuba-personal-lock:280
+msgid "Create inside:"
+msgstr "إنشاء داخل:"
+
+#: ../ojuba-personal-lock:281 ../ojuba-personal-lock:282
+msgid "Select encrypted folder parent"
+msgstr "اختر والد المجلد المشفر"
+
+#: ../ojuba-personal-lock:288
+msgid "Paranoid mode"
+msgstr "طور الريبة"
+
+#: ../ojuba-personal-lock:289
+msgid "more secure but slower mode"
+msgstr "آمن لكنه أبطأ"
+
+#: ../ojuba-personal-lock:312
+#, c-format
+msgid ""
+"Error while creating encrypted folder\n"
+"%s\n"
+"%s"
+msgstr ""
+"خطأ أثناء إنشاء المجلد المشفر\n"
+"%s\n"
+"%s"
+
+#: ../ojuba-personal-lock:330
+msgid "Encrypt your personal folders"
+msgstr "تشفير مجلداتك الشخصية"
+
+#: ../ojuba-personal-lock:367
+msgid "Decrypt"
+msgstr "فك التشفير"
+
+#: ../ojuba-personal-lock:372
+msgid "Unmount"
+msgstr "إزالة الضم"
+
+#: ../ojuba-personal-lock:404
+#, c-format
+msgid ""
+"Error while unmounting encrypted folder\n"
+"%s\n"
+"%s"
+msgstr ""
+"خطأ أثناء إزالة ضم المجلد\n"
+"%s\n"
+"%s"
+
+#: ../ojuba-personal-lock:412
+#, c-format
+msgid "Could not create target folder [%s]."
+msgstr "غير قادر على إنشاء المجلد الهدف [%s]."
+
+#: ../ojuba-personal-lock:415
+#, c-format
+msgid ""
+"Error while mounting encrypted folder\n"
+"%s\n"
+"%s"
+msgstr ""
+"خطأ أثناء ضم الملجد المشفر\n"
+"%s\n"
+"%s"

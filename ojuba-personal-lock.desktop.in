@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+_Name=Ojuba Personal Lock
+_GenericName=Folders Encryption
+_Comment=Folders Encryption Tool
+Terminal=false
+TryExec=ojuba-personal-lock
+Exec=ojuba-personal-lock
+Icon=ojuba-personal-lock
+Categories=GTK;System;Filesystem;
+StartupNotify=false
+

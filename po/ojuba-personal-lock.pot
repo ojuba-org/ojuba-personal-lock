@@ -1,0 +1,145 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-07-18 22:45+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../ojuba-personal-lock.desktop.in.h:1
+msgid "Folders Encryption"
+msgstr ""
+
+#: ../ojuba-personal-lock.desktop.in.h:2
+msgid "Folders Encryption Tool"
+msgstr ""
+
+#: ../ojuba-personal-lock.desktop.in.h:3 ../ojuba-personal-lock:327
+msgid "Ojuba Personal Lock"
+msgstr ""
+
+#: ../ojuba-personal-lock:73
+msgid "Password"
+msgstr ""
+
+#: ../ojuba-personal-lock:84
+msgid "Enter Password:"
+msgstr ""
+
+#: ../ojuba-personal-lock:92
+msgid "Verify Password:"
+msgstr ""
+
+#: ../ojuba-personal-lock:106
+msgid "Passwords does not match."
+msgstr ""
+
+#: ../ojuba-personal-lock:141
+#, c-format
+msgid "Type password below to decrypt [%s]."
+msgstr ""
+
+#: ../ojuba-personal-lock:154
+#, c-format
+msgid ""
+"Type new password below\n"
+"It will be used to decrypt [%s]."
+msgstr ""
+
+#: ../ojuba-personal-lock:159 ../ojuba-personal-lock:162
+#, c-format
+msgid "Could not create [%s] folder"
+msgstr ""
+
+#: ../ojuba-personal-lock:212
+msgid "Encrypted Folder:"
+msgstr ""
+
+#: ../ojuba-personal-lock:213
+msgid "Select encrypted folder"
+msgstr ""
+
+#: ../ojuba-personal-lock:220 ../ojuba-personal-lock:265
+msgid "Label:"
+msgstr ""
+
+#: ../ojuba-personal-lock:227
+msgid "Decrypt and open"
+msgstr ""
+
+#: ../ojuba-personal-lock:252 ../ojuba-personal-lock:317
+#: ../ojuba-personal-lock:402 ../ojuba-personal-lock:419
+msgid "Done."
+msgstr ""
+
+#: ../ojuba-personal-lock:272
+msgid "Create in default location"
+msgstr ""
+
+#: ../ojuba-personal-lock:280
+msgid "Create inside:"
+msgstr ""
+
+#: ../ojuba-personal-lock:281 ../ojuba-personal-lock:282
+msgid "Select encrypted folder parent"
+msgstr ""
+
+#: ../ojuba-personal-lock:288
+msgid "Paranoid mode"
+msgstr ""
+
+#: ../ojuba-personal-lock:289
+msgid "more secure but slower mode"
+msgstr ""
+
+#: ../ojuba-personal-lock:312
+#, c-format
+msgid ""
+"Error while creating encrypted folder\n"
+"%s\n"
+"%s"
+msgstr ""
+
+#: ../ojuba-personal-lock:330
+msgid "Encrypt your personal folders"
+msgstr ""
+
+#: ../ojuba-personal-lock:367
+msgid "Decrypt"
+msgstr ""
+
+#: ../ojuba-personal-lock:372
+msgid "Unmount"
+msgstr ""
+
+#: ../ojuba-personal-lock:404
+#, c-format
+msgid ""
+"Error while unmounting encrypted folder\n"
+"%s\n"
+"%s"
+msgstr ""
+
+#: ../ojuba-personal-lock:412
+#, c-format
+msgid "Could not create target folder [%s]."
+msgstr ""
+
+#: ../ojuba-personal-lock:415
+#, c-format
+msgid ""
+"Error while mounting encrypted folder\n"
+"%s\n"
+"%s"
+msgstr ""
