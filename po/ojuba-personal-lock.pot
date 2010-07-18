@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-18 22:45+0300\n"
+"POT-Creation-Date: 2010-07-18 23:33+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,7 +25,7 @@ msgstr ""
 msgid "Folders Encryption Tool"
 msgstr ""
 
-#: ../ojuba-personal-lock.desktop.in.h:3 ../ojuba-personal-lock:327
+#: ../ojuba-personal-lock.desktop.in.h:3 ../ojuba-personal-lock:329
 msgid "Ojuba Personal Lock"
 msgstr ""
 
@@ -62,6 +62,10 @@ msgstr ""
 msgid "Could not create [%s] folder"
 msgstr ""
 
+#: ../ojuba-personal-lock:202
+msgid "Add already created encrypted folder"
+msgstr ""
+
 #: ../ojuba-personal-lock:212
 msgid "Encrypted Folder:"
 msgstr ""
@@ -78,9 +82,13 @@ msgstr ""
 msgid "Decrypt and open"
 msgstr ""
 
-#: ../ojuba-personal-lock:252 ../ojuba-personal-lock:317
-#: ../ojuba-personal-lock:402 ../ojuba-personal-lock:419
+#: ../ojuba-personal-lock:252 ../ojuba-personal-lock:319
+#: ../ojuba-personal-lock:404 ../ojuba-personal-lock:421
 msgid "Done."
+msgstr ""
+
+#: ../ojuba-personal-lock:255
+msgid "create new encrypted folder"
 msgstr ""
 
 #: ../ojuba-personal-lock:272
@@ -103,7 +111,7 @@ msgstr ""
 msgid "more secure but slower mode"
 msgstr ""
 
-#: ../ojuba-personal-lock:312
+#: ../ojuba-personal-lock:313
 #, c-format
 msgid ""
 "Error while creating encrypted folder\n"
@@ -111,19 +119,19 @@ msgid ""
 "%s"
 msgstr ""
 
-#: ../ojuba-personal-lock:330
+#: ../ojuba-personal-lock:332
 msgid "Encrypt your personal folders"
 msgstr ""
 
-#: ../ojuba-personal-lock:367
+#: ../ojuba-personal-lock:369
 msgid "Decrypt"
 msgstr ""
 
-#: ../ojuba-personal-lock:372
+#: ../ojuba-personal-lock:374
 msgid "Unmount"
 msgstr ""
 
-#: ../ojuba-personal-lock:404
+#: ../ojuba-personal-lock:406
 #, c-format
 msgid ""
 "Error while unmounting encrypted folder\n"
@@ -131,12 +139,12 @@ msgid ""
 "%s"
 msgstr ""
 
-#: ../ojuba-personal-lock:412
+#: ../ojuba-personal-lock:414
 #, c-format
 msgid "Could not create target folder [%s]."
 msgstr ""
 
-#: ../ojuba-personal-lock:415
+#: ../ojuba-personal-lock:417
 #, c-format
 msgid ""
 "Error while mounting encrypted folder\n"

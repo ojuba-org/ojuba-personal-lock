@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ojuba-personal-lock 0.2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-18 22:45+0300\n"
+"POT-Creation-Date: 2010-07-18 23:33+0300\n"
 "PO-Revision-Date: 2009-01-28 04:17+0200\n"
 "Last-Translator: Muayyad Saleh Alsadi <alsadi@ojuba.org>\n"
 "Language-Team: Arabic <ar@li.org>\n"
@@ -25,7 +25,7 @@ msgstr "تشفير المجلدات"
 msgid "Folders Encryption Tool"
 msgstr "أداة تشفير المجلدات"
 
-#: ../ojuba-personal-lock.desktop.in.h:3 ../ojuba-personal-lock:327
+#: ../ojuba-personal-lock.desktop.in.h:3 ../ojuba-personal-lock:329
 msgid "Ojuba Personal Lock"
 msgstr "خزنة أعجوبة الشخصية"
 
@@ -64,6 +64,10 @@ msgstr ""
 msgid "Could not create [%s] folder"
 msgstr "غير قادر على إنشاء مجلد [%s]"
 
+#: ../ojuba-personal-lock:202
+msgid "Add already created encrypted folder"
+msgstr "إضافة مجلد مشفر مسبقا"
+
 #: ../ojuba-personal-lock:212
 msgid "Encrypted Folder:"
 msgstr "المجلد المشفر:"
@@ -80,10 +84,14 @@ msgstr "العنوان:"
 msgid "Decrypt and open"
 msgstr "فك التشفير وفتح"
 
-#: ../ojuba-personal-lock:252 ../ojuba-personal-lock:317
-#: ../ojuba-personal-lock:402 ../ojuba-personal-lock:419
+#: ../ojuba-personal-lock:252 ../ojuba-personal-lock:319
+#: ../ojuba-personal-lock:404 ../ojuba-personal-lock:421
 msgid "Done."
 msgstr "تم."
+
+#: ../ojuba-personal-lock:255
+msgid "create new encrypted folder"
+msgstr "إنشاء مجلد مشفّر جديد"
 
 #: ../ojuba-personal-lock:272
 msgid "Create in default location"
@@ -105,7 +113,7 @@ msgstr "طور الريبة"
 msgid "more secure but slower mode"
 msgstr "آمن لكنه أبطأ"
 
-#: ../ojuba-personal-lock:312
+#: ../ojuba-personal-lock:313
 #, c-format
 msgid ""
 "Error while creating encrypted folder\n"
@@ -116,19 +124,19 @@ msgstr ""
 "%s\n"
 "%s"
 
-#: ../ojuba-personal-lock:330
+#: ../ojuba-personal-lock:332
 msgid "Encrypt your personal folders"
 msgstr "تشفير مجلداتك الشخصية"
 
-#: ../ojuba-personal-lock:367
+#: ../ojuba-personal-lock:369
 msgid "Decrypt"
 msgstr "فك التشفير"
 
-#: ../ojuba-personal-lock:372
+#: ../ojuba-personal-lock:374
 msgid "Unmount"
 msgstr "إزالة الضم"
 
-#: ../ojuba-personal-lock:404
+#: ../ojuba-personal-lock:406
 #, c-format
 msgid ""
 "Error while unmounting encrypted folder\n"
@@ -139,12 +147,12 @@ msgstr ""
 "%s\n"
 "%s"
 
-#: ../ojuba-personal-lock:412
+#: ../ojuba-personal-lock:414
 #, c-format
 msgid "Could not create target folder [%s]."
 msgstr "غير قادر على إنشاء المجلد الهدف [%s]."
 
-#: ../ojuba-personal-lock:415
+#: ../ojuba-personal-lock:417
 #, c-format
 msgid ""
 "Error while mounting encrypted folder\n"
