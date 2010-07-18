@@ -199,7 +199,7 @@ class applet(object):
   def _hide_cb(self, w, *args): w.hide(); return True
 
   def _init_add_dialog(self):
-    self.add_dlg = gtk.Dialog("Add already created encrypted folder", None,
+    self.add_dlg = gtk.Dialog(_("Add already created encrypted folder"), None,
       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
       (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
       gtk.STOCK_ADD, gtk.RESPONSE_ACCEPT))
@@ -252,7 +252,7 @@ class applet(object):
     else: info(_("Done."))
 
   def _init_new_dialog(self):
-    self.new_dlg = gtk.Dialog("create new encrypted folder", None,
+    self.new_dlg = gtk.Dialog(_("create new encrypted folder"), None,
       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
       (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
       gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
