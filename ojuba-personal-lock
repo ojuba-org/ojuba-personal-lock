@@ -311,11 +311,7 @@ class applet(object):
     if r!=0:
       error(_("Error while creating encrypted folder\n%s\n%s") % (o,e))
       return
-    open(os.path.join(dd, "README.txt"), "w").write(_("""\
-This folder is encrypted.
-You may put your private files here.
-You can delete this file.
-"""))
+    open(os.path.join(dd, "README.txt"), "w").write(_("This folder is encrypted.\nYou may put your private files here.\nYou can delete this file."""))
     self._paths.append((l,d,))
     self._refresh_menu()
     self._save_conf()
@@ -396,7 +392,7 @@ You can delete this file.
     ls=self.get_mounted()
     if ls:
       if not sure(_("Some encrypted folders are still mounted.\nWhich means that your private files are visible.\nMost likely you want to unmount them before you exist.\nAre you sure you want to quit?")): return
-      if sure(_("Do you want to unmount all encrypted folders.")):
+      if sure(_("Do you want to unmount all encrypted folders?")):
         for d in ls: self._unmount_cb(None, d, False)
     gtk.main_quit()
 
