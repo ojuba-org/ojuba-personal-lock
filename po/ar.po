@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ojuba-personal-lock 0.2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-19 08:17+0300\n"
+"POT-Creation-Date: 2010-07-19 08:27+0300\n"
 "PO-Revision-Date: 2009-01-28 04:17+0200\n"
 "Last-Translator: Muayyad Saleh Alsadi <alsadi@ojuba.org>\n"
 "Language-Team: Arabic <ar@li.org>\n"
@@ -25,7 +25,7 @@ msgstr "تشفير المجلدات"
 msgid "Folders Encryption Tool"
 msgstr "أداة تشفير المجلدات"
 
-#: ../ojuba-personal-lock.desktop.in.h:3 ../ojuba-personal-lock:329
+#: ../ojuba-personal-lock.desktop.in.h:3 ../ojuba-personal-lock:340
 msgid "Ojuba Personal Lock"
 msgstr "خزنة أعجوبة الشخصية"
 
@@ -76,7 +76,7 @@ msgstr "المجلد المشفر:"
 msgid "Select encrypted folder"
 msgstr "اختر المجلد المشفر"
 
-#: ../ojuba-personal-lock:219 ../ojuba-personal-lock:264
+#: ../ojuba-personal-lock:219 ../ojuba-personal-lock:269
 msgid "Label:"
 msgstr "العنوان:"
 
@@ -84,36 +84,40 @@ msgstr "العنوان:"
 msgid "Decrypt and open"
 msgstr "فك التشفير وفتح"
 
-#: ../ojuba-personal-lock:251 ../ojuba-personal-lock:319
-#: ../ojuba-personal-lock:429
+#: ../ojuba-personal-lock:256 ../ojuba-personal-lock:329
+#: ../ojuba-personal-lock:440
 msgid "Done."
 msgstr "تم."
 
-#: ../ojuba-personal-lock:254
+#: ../ojuba-personal-lock:259
 msgid "create new encrypted folder"
 msgstr "إنشاء مجلد مشفّر جديد"
 
-#: ../ojuba-personal-lock:271
+#: ../ojuba-personal-lock:276
 msgid "Create in default location"
 msgstr "إنشاء في المكان التلقائي"
 
-#: ../ojuba-personal-lock:279
+#: ../ojuba-personal-lock:277
+msgid "use \"Personal\" folder inside users home"
+msgstr "استخدام مجلد \"Personal\" الموجود داخل مجلد البيت"
+
+#: ../ojuba-personal-lock:284
 msgid "Create inside:"
 msgstr "إنشاء داخل:"
 
-#: ../ojuba-personal-lock:280 ../ojuba-personal-lock:281
+#: ../ojuba-personal-lock:285 ../ojuba-personal-lock:286
 msgid "Select encrypted folder parent"
 msgstr "اختر والد المجلد المشفر"
 
-#: ../ojuba-personal-lock:287
+#: ../ojuba-personal-lock:292
 msgid "Paranoid mode"
 msgstr "طور الريبة"
 
-#: ../ojuba-personal-lock:288
+#: ../ojuba-personal-lock:293
 msgid "more secure but slower mode"
 msgstr "آمن لكنه أبطأ"
 
-#: ../ojuba-personal-lock:312
+#: ../ojuba-personal-lock:322
 #, c-format
 msgid ""
 "Error while creating encrypted folder\n"
@@ -124,7 +128,7 @@ msgstr ""
 "%s\n"
 "%s"
 
-#: ../ojuba-personal-lock:314
+#: ../ojuba-personal-lock:324
 msgid ""
 "This folder is encrypted.\n"
 "You may put your private files here.\n"
@@ -134,19 +138,19 @@ msgstr ""
 "يمكنك وضع ملفاتك الخاصة فيه.\n"
 "يمكنك حذف هذا الملف."
 
-#: ../ojuba-personal-lock:332
+#: ../ojuba-personal-lock:343
 msgid "Encrypt your personal folders"
 msgstr "تشفير مجلداتك الشخصية"
 
-#: ../ojuba-personal-lock:369
+#: ../ojuba-personal-lock:380
 msgid "Decrypt"
 msgstr "فك التشفير"
 
-#: ../ojuba-personal-lock:374
+#: ../ojuba-personal-lock:385
 msgid "Unmount"
 msgstr "إزالة الضم"
 
-#: ../ojuba-personal-lock:394
+#: ../ojuba-personal-lock:405
 msgid ""
 "Some encrypted folders are still mounted.\n"
 "Which means that your private files are visible.\n"
@@ -158,15 +162,15 @@ msgstr ""
 "لعلك ترغب بإزالة الضم قبل الخروج.\n"
 "هل أنت متأكد من رغبتك في الخروج؟"
 
-#: ../ojuba-personal-lock:395
+#: ../ojuba-personal-lock:406
 msgid "Do you want to unmount all encrypted folders?"
 msgstr "هل ترغب بإزالة ضم كل المجلدات المضمومة؟"
 
-#: ../ojuba-personal-lock:412
+#: ../ojuba-personal-lock:423
 msgid "Done. Your private files no longer visible."
 msgstr "تم. ملفاتك الخاصة لم تعد مرئية"
 
-#: ../ojuba-personal-lock:414
+#: ../ojuba-personal-lock:425
 #, c-format
 msgid ""
 "Error while unmounting encrypted folder\n"
@@ -177,12 +181,12 @@ msgstr ""
 "%s\n"
 "%s"
 
-#: ../ojuba-personal-lock:422
+#: ../ojuba-personal-lock:433
 #, c-format
 msgid "Could not create target folder [%s]."
 msgstr "غير قادر على إنشاء المجلد الهدف [%s]."
 
-#: ../ojuba-personal-lock:425
+#: ../ojuba-personal-lock:436
 #, c-format
 msgid ""
 "Error while mounting encrypted folder\n"
@@ -192,4 +196,3 @@ msgstr ""
 "خطأ أثناء ضم الملجد المشفر\n"
 "%s\n"
 "%s"
-
