@@ -115,6 +115,8 @@ class applet(object):
   _conf_fn=os.path.expanduser('~/Personal/.ojuba-personal-lock.rc')
   def __init__(self):
     self._paths = []
+    self._last_ls = set()
+    self._last_paths = []
     self._load_conf()
     self._init_about_dialog()
     self._init_new_dialog()
@@ -128,7 +130,7 @@ class applet(object):
     self._notify=pynotify.Notification("OjubaPersonalLockApplet")
     self._notify.attach_to_status_icon(self._s)
     self._notify.set_property('icon-name','ojuba-personal-lock')
-    glib.timeout_add(500, self._timer_cb)
+    glib.timeout_add(5000, self._timer_cb)
 
   def _mount_check(self, enc_dir, dec_dir):
     return os.path.isdir(dec_dir) and \
@@ -193,6 +195,7 @@ class applet(object):
     except OSError: pass
 
   def _timer_cb(self, *args):
+    self._refresh_menu(True)
     return True
 
   def _hide_cb(self, w, *args): w.hide(); return True
@@ -240,11 +243,14 @@ class applet(object):
       if r: return
       l=self._add_label.get_text().strip()
       if not l:
-        error("Type non-empty label.")
+        error(_("Type non-empty label."))
+        continue
+      if l in map(lambda i:i[0],self._paths):
+        error(_("Label [%s] is already used.") % l)
         continue
       d=self._add_enc_dir.get_filename()
       if not os.path.exists(os.path.join(d,".encfs6.xml")):
-        error("The folder [%s] was not encrypted with encfs.\nSelect another folder." % d)
+        error(_("The folder [%s] was not encrypted with encfs.\nSelect another folder.") % d)
         continue
       break
     m=self._add_dec.get_active()
@@ -307,13 +313,16 @@ class applet(object):
       if r: return
       l=self._new_label.get_text().strip()
       if not l:
-        error("Type non-empty label.")
+        error(_("Type non-empty label."))
+        continue
+      if l in map(lambda i:i[0],self._paths):
+        error(_("Label [%s] is already used.") % l)
         continue
       if self._new_def.get_active(): p=self._base_enc_dir
       else: p=self._new_enc_p_dir.get_filename()
       d=os.path.join(p,l)
       if os.path.exists(d):
-        error("The folder [%s] already exists." % d)
+        error(_("The folder [%s] already exists.") % d)
         continue
       break
     dd=os.path.join(self._base_dir,l)
@@ -439,8 +448,12 @@ class applet(object):
     run_file_man(dd)
     info(_("Done."))
 
-  def _refresh_menu(self):
+  def _refresh_menu(self, check=False):
     ls=self.get_mounted()
+    if check and ls == self._last_ls and self._paths == self._last_paths: return
+    self._last_ls = ls
+    self._last_paths = self._paths
+    self._menu.popdown()
     m = gtk.Menu()
     for j in ls:
       i=gtk.MenuItem(os.path.basename(j))
