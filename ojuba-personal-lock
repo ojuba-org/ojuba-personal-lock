@@ -230,6 +230,10 @@ class applet(object):
     
     vb.show_all()
 
+  def _add_dialog_reset(self):
+    self._add_label.set_text("")
+    self._add_dec.set_active(True)
+
   def _add_cb(self, i):
     while(True):
       r=self.add_dlg.run() != gtk.RESPONSE_ACCEPT
@@ -247,6 +251,7 @@ class applet(object):
     self._paths.append((l,d,))
     self._refresh_menu()
     self._save_conf()
+    self._add_dialog_reset()
     if m: self._mount_cb(None, (l,d))
     else: info(_("Done."))
 
@@ -269,7 +274,7 @@ class applet(object):
 
     hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
     b=gtk.CheckButton(_("Create in default location"))
-    b.set_tooltip_text(_('use "Personal" folder inside users home'))
+    b.set_tooltip_text(_("use \"Personal\" folder inside users home"))
     hb.pack_start(b ,False, False, 0)
     self._new_def = b
 
@@ -290,6 +295,11 @@ class applet(object):
     self._new_paranoid = b
 
     vb.show_all()
+
+  def _new_dialog_reset(self):
+    self._new_label.set_text("")
+    self._new_def.set_active(True)
+    self._new_paranoid.set_active(False)
 
   def _new_cb(self, i):
     while(True):
@@ -317,6 +327,7 @@ class applet(object):
     self._save_conf()
     run_file_man(dd)
     info(_("Done."))
+    self._new_dialog_reset()
     
 
   def _init_about_dialog(self):
