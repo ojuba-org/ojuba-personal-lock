@@ -22,7 +22,6 @@ PyGTK+ front-end for fuse-encfs
 
 #FIXME: use os.path.ismount to check if mounted
 #FIXME: replace info(_("Done.")) with notification
-#TODO: on exit warn if some folder are still mounted
 
 import sys, os, os.path, re, gettext
 import glib, gtk, pynotify
@@ -312,6 +311,11 @@ class applet(object):
     if r!=0:
       error(_("Error while creating encrypted folder\n%s\n%s") % (o,e))
       return
+    open(os.path.join(dd, "README.txt"), "w").write(_("""\
+This folder is encrypted.
+You may put your private files here.
+You can delete this file.
+"""))
     self._paths.append((l,d,))
     self._refresh_menu()
     self._save_conf()
@@ -382,11 +386,19 @@ class applet(object):
     self._menu.add(i)
     
     i = gtk.ImageMenuItem(gtk.STOCK_QUIT)
-    i.connect('activate', gtk.main_quit)
+    i.connect('activate', self.quit)
     self._menu.add(i)
 
     self._menu.show_all()
     self._refresh_menu()
+
+  def quit(self, *a, **kw):
+    ls=self.get_mounted()
+    if ls:
+      if not sure(_("Some encrypted folders are still mounted.\nWhich means that your private files are visible.\nMost likely you want to unmount them before you exist.\nAre you sure you want to quit?")): return
+      if sure(_("Do you want to unmount all encrypted folders.")):
+        for d in ls: self._unmount_cb(None, d, False)
+    gtk.main_quit()
 
   def get_mounted(self):
     l=map(lambda i: i.split(), open('/proc/mounts','r').readlines())
@@ -394,14 +406,14 @@ class applet(object):
     if not d: return []
     return set(map(lambda i: self._ch_re.sub(lambda m: chr(int(m.group(1),8)), i[1]), d ))
 
-  def _unmount_cb(self, m, d):
+  def _unmount_cb(self, m, d, done=True):
     cmd = "fusermount -u '%s'" % d
     p=Popen(cmd,0,'/bin/sh', shell=True, stdout=PIPE, stderr=PIPE)
     o, e = p.communicate()
     r = p.returncode
     if r==0:
       self._refresh_menu()
-      info(_("Done."))
+      if done: info(_("Done. Your private files no longer visible."))
     else:
       error(_("Error while unmounting encrypted folder\n%s\n%s") % (o,e))
 
