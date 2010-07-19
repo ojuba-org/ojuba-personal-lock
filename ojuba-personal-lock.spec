@@ -1,6 +1,6 @@
 Name:		ojuba-personal-lock
 Summary:	Folder Encrpytion GUI
-Version:	0.2.0
+Version:	0.2.1
 Release:	1
 License:	Waqf
 Group:		System Environment/Base
@@ -45,6 +45,9 @@ fi
 %{_datadir}/icons/hicolor/*/apps/*.svg
 
 %changelog
+* Mon Jul 19 2010 Muayyad Saleh Alsadi <alsadi@ojuba.org> - 0.2.1-1
+- minor fixes
+
 * Sun Jul 18 2010 Muayyad Saleh Alsadi <alsadi@ojuba.org> - 0.2.0-1
 - initial release
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-19 08:27+0300\n"
+"POT-Creation-Date: 2010-07-19 08:45+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,7 +25,7 @@ msgstr ""
 msgid "Folders Encryption Tool"
 msgstr ""
 
-#: ../ojuba-personal-lock.desktop.in.h:3 ../ojuba-personal-lock:340
+#: ../ojuba-personal-lock.desktop.in.h:3 ../ojuba-personal-lock:349
 msgid "Ojuba Personal Lock"
 msgstr ""
 
@@ -45,77 +45,98 @@ msgstr ""
 msgid "Passwords does not match."
 msgstr ""
 
-#: ../ojuba-personal-lock:140
+#: ../ojuba-personal-lock:142
 #, c-format
 msgid "Type password below to decrypt [%s]."
 msgstr ""
 
-#: ../ojuba-personal-lock:153
+#: ../ojuba-personal-lock:155
 #, c-format
 msgid ""
 "Type new password below\n"
 "It will be used to decrypt [%s]."
 msgstr ""
 
-#: ../ojuba-personal-lock:158 ../ojuba-personal-lock:161
+#: ../ojuba-personal-lock:160 ../ojuba-personal-lock:163
 #, c-format
 msgid "Could not create [%s] folder"
 msgstr ""
 
-#: ../ojuba-personal-lock:201
+#: ../ojuba-personal-lock:204
 msgid "Add already created encrypted folder"
 msgstr ""
 
-#: ../ojuba-personal-lock:211
+#: ../ojuba-personal-lock:214
 msgid "Encrypted Folder:"
 msgstr ""
 
-#: ../ojuba-personal-lock:212
+#: ../ojuba-personal-lock:215
 msgid "Select encrypted folder"
 msgstr ""
 
-#: ../ojuba-personal-lock:219 ../ojuba-personal-lock:269
+#: ../ojuba-personal-lock:222 ../ojuba-personal-lock:275
 msgid "Label:"
 msgstr ""
 
-#: ../ojuba-personal-lock:226
+#: ../ojuba-personal-lock:229
 msgid "Decrypt and open"
 msgstr ""
 
-#: ../ojuba-personal-lock:256 ../ojuba-personal-lock:329
-#: ../ojuba-personal-lock:440
+#: ../ojuba-personal-lock:246 ../ojuba-personal-lock:316
+msgid "Type non-empty label."
+msgstr ""
+
+#: ../ojuba-personal-lock:249 ../ojuba-personal-lock:319
+#, c-format
+msgid "Label [%s] is already used."
+msgstr ""
+
+#: ../ojuba-personal-lock:253
+#, c-format
+msgid ""
+"The folder [%s] was not encrypted with encfs.\n"
+"Select another folder."
+msgstr ""
+
+#: ../ojuba-personal-lock:262 ../ojuba-personal-lock:338
+#: ../ojuba-personal-lock:449
 msgid "Done."
 msgstr ""
 
-#: ../ojuba-personal-lock:259
+#: ../ojuba-personal-lock:265
 msgid "create new encrypted folder"
 msgstr ""
 
-#: ../ojuba-personal-lock:276
+#: ../ojuba-personal-lock:282
 msgid "Create in default location"
 msgstr ""
 
-#: ../ojuba-personal-lock:277
+#: ../ojuba-personal-lock:283
 msgid "use \"Personal\" folder inside users home"
 msgstr ""
 
-#: ../ojuba-personal-lock:284
+#: ../ojuba-personal-lock:290
 msgid "Create inside:"
 msgstr ""
 
-#: ../ojuba-personal-lock:285 ../ojuba-personal-lock:286
+#: ../ojuba-personal-lock:291 ../ojuba-personal-lock:292
 msgid "Select encrypted folder parent"
 msgstr ""
 
-#: ../ojuba-personal-lock:292
+#: ../ojuba-personal-lock:298
 msgid "Paranoid mode"
 msgstr ""
 
-#: ../ojuba-personal-lock:293
+#: ../ojuba-personal-lock:299
 msgid "more secure but slower mode"
 msgstr ""
 
-#: ../ojuba-personal-lock:322
+#: ../ojuba-personal-lock:325
+#, c-format
+msgid "The folder [%s] already exists."
+msgstr ""
+
+#: ../ojuba-personal-lock:331
 #, c-format
 msgid ""
 "Error while creating encrypted folder\n"
@@ -123,26 +144,26 @@ msgid ""
 "%s"
 msgstr ""
 
-#: ../ojuba-personal-lock:324
+#: ../ojuba-personal-lock:333
 msgid ""
 "This folder is encrypted.\n"
 "You may put your private files here.\n"
 "You can delete this file."
 msgstr ""
 
-#: ../ojuba-personal-lock:343
+#: ../ojuba-personal-lock:352
 msgid "Encrypt your personal folders"
 msgstr ""
 
-#: ../ojuba-personal-lock:380
+#: ../ojuba-personal-lock:389
 msgid "Decrypt"
 msgstr ""
 
-#: ../ojuba-personal-lock:385
+#: ../ojuba-personal-lock:394
 msgid "Unmount"
 msgstr ""
 
-#: ../ojuba-personal-lock:405
+#: ../ojuba-personal-lock:414
 msgid ""
 "Some encrypted folders are still mounted.\n"
 "Which means that your private files are visible.\n"
@@ -150,15 +171,15 @@ msgid ""
 "Are you sure you want to quit?"
 msgstr ""
 
-#: ../ojuba-personal-lock:406
+#: ../ojuba-personal-lock:415
 msgid "Do you want to unmount all encrypted folders?"
 msgstr ""
 
-#: ../ojuba-personal-lock:423
+#: ../ojuba-personal-lock:432
 msgid "Done. Your private files no longer visible."
 msgstr ""
 
-#: ../ojuba-personal-lock:425
+#: ../ojuba-personal-lock:434
 #, c-format
 msgid ""
 "Error while unmounting encrypted folder\n"
@@ -166,12 +187,12 @@ msgid ""
 "%s"
 msgstr ""
 
-#: ../ojuba-personal-lock:433
+#: ../ojuba-personal-lock:442
 #, c-format
 msgid "Could not create target folder [%s]."
 msgstr ""
 
-#: ../ojuba-personal-lock:436
+#: ../ojuba-personal-lock:445
 #, c-format
 msgid ""
 "Error while mounting encrypted folder\n"
