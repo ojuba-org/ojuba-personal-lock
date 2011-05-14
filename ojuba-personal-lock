@@ -122,14 +122,14 @@ class applet(object):
     self._init_new_dialog()
     self._init_add_dialog()
     self._init_menu()
-    self._s=gtk.status_icon_new_from_file(os.path.join(datadir,'ojuba-personal-lock.svg'))
-    self._s.connect('popup-menu',self._popup_cb)
-    self._s.connect('activate', lambda *a: self.about_dlg.run())
     pynotify.init('OjubaPersonalLockApplet')
-    self._notifycaps = pynotify.get_server_caps ()
-    self._notify=pynotify.Notification("OjubaPersonalLockApplet")
-    self._notify.attach_to_status_icon(self._s)
-    self._notify.set_property('icon-name','ojuba-personal-lock')
+    #FIXED: For Gnome3
+    self.statusicon = gtk.StatusIcon ()
+    self.statusicon.connect('popup-menu',self._popup_cb)
+    self.statusicon.connect('activate', lambda *a: self.about_dlg.run())
+    self.statusicon.set_title(_("Ojuba Personal Lock"))
+    self.statusicon.set_from_file(os.path.join(datadir,'ojuba-personal-lock.svg'))
+	
     glib.timeout_add(5000, self._timer_cb)
 
   def _mount_check(self, enc_dir, dec_dir):
