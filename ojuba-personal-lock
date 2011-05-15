@@ -128,6 +128,8 @@ class applet(object):
     self.statusicon.connect('popup-menu',self._popup_cb)
     self.statusicon.connect('activate', lambda *a: self.about_dlg.run())
     self.statusicon.set_title(_("Ojuba Personal Lock"))
+    self.statusicon.set_visible(False)
+    self.statusicon.set_visible(True)
     self.statusicon.set_from_file(os.path.join(datadir,'ojuba-personal-lock.svg'))
 	
     glib.timeout_add(5000, self._timer_cb)
@@ -377,10 +379,12 @@ class applet(object):
     self._menu = gtk.Menu()
     i = gtk.ImageMenuItem(gtk.STOCK_NEW)
     i.connect('activate', self._new_cb)
+    i.set_always_show_image(True)
     self._menu.add(i)
 
     i = gtk.ImageMenuItem(gtk.STOCK_ADD)
     i.connect('activate', self._add_cb)
+    i.set_always_show_image(True)
     self._menu.add(i)
 
     self._menu.add(gtk.SeparatorMenuItem())
@@ -399,10 +403,12 @@ class applet(object):
 
     i = gtk.ImageMenuItem(gtk.STOCK_ABOUT)
     i.connect('activate', lambda *args: self.about_dlg.run())
+    i.set_always_show_image(True)
     self._menu.add(i)
     
     i = gtk.ImageMenuItem(gtk.STOCK_QUIT)
     i.connect('activate', self.quit)
+    i.set_always_show_image(True)
     self._menu.add(i)
 
     self._menu.show_all()
