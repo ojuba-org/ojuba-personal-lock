@@ -1,6 +1,6 @@
 Name:		ojuba-personal-lock
 Summary:	Folder Encrpytion GUI
-Version:	0.2.2
+Version:	0.2.3
 Release:	1
 License:	Waqf
 Group:		System Environment/Base
