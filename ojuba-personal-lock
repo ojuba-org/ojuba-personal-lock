@@ -1,10 +1,10 @@
-#! /usr/bin/env python
+#!/usr/bin/python
 # -*- coding: UTF-8 -*-
 """
 Ojuba Personal Lock
 Copyright © 2010 Ojuba.org, Muayyad Saleh Alsadi<alsadi@ojuba.org>
 
-PyGTK+ front-end for fuse-encfs
+PyGtk+ front-end for fuse-encfs
 
     Released under terms of Waqf Public License.
     This program is free software; you can redistribute it and/or modify
@@ -22,10 +22,10 @@ PyGTK+ front-end for fuse-encfs
 
 #FIXME: use os.path.ismount to check if mounted
 #FIXME: replace info(_("Done.")) with notification
-
 import sys, os, os.path, re, gettext
-import glib, gtk, pynotify
-
+#import pynotify #ahmed
+from gi.repository import Gtk, Notify
+import glib
 from subprocess import Popen,PIPE
 from glob import glob
 
@@ -50,53 +50,61 @@ def run_file_man(mp):
 
 
 def sure(msg, w=None):
-  dlg=gtk.MessageDialog(w, gtk.DIALOG_MODAL,gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO, msg)
+  dlg=Gtk.MessageDialog(w, Gtk.DialogFlags.MODAL, Gtk.MessageType.QUESTION,
+                         Gtk.ButtonsType.YES_NO, msg)
   dlg.connect("response", lambda *args: dlg.hide())
   r=dlg.run()
   dlg.destroy()
-  return r==gtk.RESPONSE_YES
+  return r==7
 
 def info(msg, w=None):
-  dlg=gtk.MessageDialog(w, gtk.DIALOG_MODAL,gtk.MESSAGE_INFO, gtk.BUTTONS_OK, msg)
+  dlg=Gtk.MessageDialog(w, Gtk.DialogFlags.MODAL,
+            Gtk.MessageType.INFO, Gtk.ButtonsType.OK,
+            msg)
   dlg.connect("response", lambda *args: dlg.hide())
   r=dlg.run()
   dlg.destroy()
 
 def error(msg, w=None):
-  dlg=gtk.MessageDialog(w, gtk.DIALOG_MODAL,gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, msg)
+  dlg=Gtk.MessageDialog(w, Gtk.DialogFlags.MODAL,
+            Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
+            msg)
   dlg.connect("response", lambda *args: dlg.hide())
   r=dlg.run()
   dlg.destroy()
 
 def askpass(msg, verify=False, w=None):
-  dlg = gtk.Dialog(_("Password"), None,
-    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-    (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-  dlg.set_default_response(gtk.RESPONSE_ACCEPT)
+  dlg = Gtk.Dialog(_("Password"), None,
+    Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+    (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+    gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
+  dlg.set_default_response(Gtk.ResponseType.ACCEPT)
   
   vb=dlg.vbox
-  hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
-  hb.pack_start(gtk.Label(msg),False, False, 0)
+  hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL)
+  vb.pack_start(hb,False, False, 0)
+  hb.pack_start(Gtk.Label(msg),False, False, 0)
   
-  hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
-  hb.pack_start(gtk.Label(_("Enter Password:")),False, False, 0)
-  e=gtk.Entry()
+  hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL) 
+  vb.pack_start(hb,False, False, 0)
+  hb.pack_start(Gtk.Label(_("Enter Password:")),False, False, 0)
+  e=Gtk.Entry()
   hb.pack_start(e ,False, False, 0)
   e.set_visibility(False)
   e.set_activates_default(True)
   
   if verify:
-    hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
-    hb.pack_start(gtk.Label(_("Verify Password:")),False, False, 0)
-    e2 = gtk.Entry()
+    hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL) 
+    vb.pack_start(hb,False, False, 0)
+    hb.pack_start(Gtk.Label(_("Verify Password:")),False, False, 0)
+    e2 = Gtk.Entry()
     hb.pack_start(e2 ,False, False, 0)
     e2.set_visibility(False)
     e2.set_activates_default(True)
 
   vb.show_all()
   while(True):
-    r = dlg.run()==gtk.RESPONSE_ACCEPT
+    r = dlg.run()==2
     if not r: break
     p = e.get_text()
     if verify:
@@ -122,9 +130,13 @@ class applet(object):
     self._init_new_dialog()
     self._init_add_dialog()
     self._init_menu()
-    pynotify.init('OjubaPersonalLockApplet')
-    #FIXED: For Gnome3
-    self.statusicon = gtk.StatusIcon ()
+    # FIXME: is this needed?
+    # this must done in the end of function
+    #Notify.init('OjubaPersonalLockApplet') #ahmed
+    #notify = Notify.Notification.new('OPLA','OjubaPersonalLockApplet','') #ahmed
+    #notify.show() #ahmed
+
+    self.statusicon = Gtk.StatusIcon ()
     self.statusicon.connect('popup-menu',self._popup_cb)
     self.statusicon.connect('activate', lambda *a: self.about_dlg.run())
     self.statusicon.set_title(_("Ojuba Personal Lock"))
@@ -203,32 +215,35 @@ class applet(object):
   def _hide_cb(self, w, *args): w.hide(); return True
 
   def _init_add_dialog(self):
-    self.add_dlg = gtk.Dialog(_("Add already created encrypted folder"), None,
-      gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-      (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-      gtk.STOCK_ADD, gtk.RESPONSE_ACCEPT))
-    self.add_dlg.set_default_response(gtk.RESPONSE_ACCEPT)
+    self.add_dlg = Gtk.Dialog(_("Add already created encrypted folder"), None,
+      Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+      (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+      Gtk.STOCK_ADD, Gtk.ResponseType.ACCEPT))
+    self.add_dlg.set_default_response(Gtk.ResponseType.ACCEPT)
     self.add_dlg.connect('delete-event', self._hide_cb)
     self.add_dlg.connect('response', self._hide_cb)
     vb=self.add_dlg.vbox
 
-    hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
-    hb.pack_start(gtk.Label(_("Encrypted Folder:")),False, False, 0)
-    b=gtk.FileChooserButton(_("Select encrypted folder"))
-    b.set_action(gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
-    b.connect("selection-changed", lambda bb: self._add_label.set_text(os.path.basename(bb.get_filename())))
+    hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL) 
+    vb.pack_start(hb,False, False, 0)
+    hb.pack_start(Gtk.Label(_("Encrypted Folder:")),False, False, 0)
+    b=Gtk.FileChooserButton(_("Select encrypted folder"),2)
+    b.connect("selection-changed",
+               lambda bb: self._add_label.set_text(os.path.basename(bb.get_filename())))
     hb.pack_start(b ,False, False, 0)
     self._add_enc_dir = b
     
-    hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
-    hb.pack_start(gtk.Label(_("Label:")),False, False, 0)
-    e=gtk.Entry()
+    hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL) 
+    vb.pack_start(hb,False, False, 0)
+    hb.pack_start(Gtk.Label(_("Label:")),False, False, 0)
+    e=Gtk.Entry()
     e.set_activates_default(True)
     hb.pack_start(e ,False, False, 0)
     self._add_label = e
     
-    hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
-    b=gtk.CheckButton(_("Decrypt and open"))
+    hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL) 
+    vb.pack_start(hb,False, False, 0)
+    b=Gtk.CheckButton(_("Decrypt and open"))
     b.set_active(True)
     hb.pack_start(b ,False, False, 0)
     self._add_dec = b
@@ -241,7 +256,7 @@ class applet(object):
 
   def _add_cb(self, i):
     while(True):
-      r=self.add_dlg.run() != gtk.RESPONSE_ACCEPT
+      r=self.add_dlg.run() != 2
       if r: return
       l=self._add_label.get_text().strip()
       if not l:
@@ -264,40 +279,44 @@ class applet(object):
     else: info(_("Done."))
 
   def _init_new_dialog(self):
-    self.new_dlg = gtk.Dialog(_("create new encrypted folder"), None,
-      gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-      (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-      gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-    self.new_dlg.set_default_response(gtk.RESPONSE_ACCEPT)
+    self.new_dlg = Gtk.Dialog(_("create new encrypted folder"), None,
+      Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+      (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+      Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
+    self.new_dlg.set_default_response(Gtk.ResponseType.ACCEPT)
     self.new_dlg.connect('delete-event', self._hide_cb)
     self.new_dlg.connect('response', self._hide_cb)
     vb=self.new_dlg.vbox
 
-    hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
-    hb.pack_start(gtk.Label(_("Label:")),False, False, 0)
-    e=gtk.Entry()
+    hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL) 
+    vb.pack_start(hb,False, False, 0)
+    hb.pack_start(Gtk.Label(_("Label:")),False, False, 0)
+    e=Gtk.Entry()
     e.set_activates_default(True)
     hb.pack_start(e ,False, False, 0)
     self._new_label = e
 
-    hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
-    b=gtk.CheckButton(_("Create in default location"))
+    hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL) 
+    vb.pack_start(hb,False, False, 0)
+    b=Gtk.CheckButton(_("Create in default location"))
     b.set_tooltip_text(_("use \"Personal\" folder inside users home"))
     hb.pack_start(b ,False, False, 0)
     self._new_def = b
 
-    p_hb=hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
+    p_hb=hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL) 
+    vb.pack_start(hb,False, False, 0)
     b.connect('toggled', lambda bb: p_hb.set_sensitive(not bb.get_active()) )
     b.set_active(True)
-    hb.pack_start(gtk.Label(_("Create inside:")),False, False, 0)
-    b=gtk.FileChooserButton(_("Select encrypted folder parent"))
+    hb.pack_start(Gtk.Label(_("Create inside:")),False, False, 0)
+    b=Gtk.FileChooserButton(_("Select encrypted folder parent"))
     b.set_tooltip_text(_("Select encrypted folder parent"))
-    b.set_action(gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
+    b.set_action(2)
     hb.pack_start(b ,False, False, 0)
     self._new_enc_p_dir = b
 
-    hb=gtk.HBox(False,2); vb.pack_start(hb,False, False, 0)
-    b=gtk.CheckButton(_("Paranoid mode"))
+    hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL) 
+    vb.pack_start(hb,False, False, 0)
+    b=Gtk.CheckButton(_("Paranoid mode"))
     b.set_tooltip_text(_("more secure but slower mode"))
     hb.pack_start(b ,False, False, 0)
     self._new_paranoid = b
@@ -311,7 +330,7 @@ class applet(object):
 
   def _new_cb(self, i):
     while(True):
-      r=self.new_dlg.run() != gtk.RESPONSE_ACCEPT
+      r=self.new_dlg.run() != 2
       if r: return
       l=self._new_label.get_text().strip()
       if not l:
@@ -332,7 +351,8 @@ class applet(object):
     if r!=0:
       error(_("Error while creating encrypted folder\n%s\n%s") % (o,e))
       return
-    open(os.path.join(dd, "README.txt"), "w").write(_("This folder is encrypted.\nYou may put your private files here.\nYou can delete this file."""))
+    open(os.path.join(dd, "README.txt"), "w").write(_("This folder is\
+     encrypted.\nYou may put your private files here.\nYou can delete this file."""))
     self._paths.append((l,d,))
     self._refresh_menu()
     self._save_conf()
@@ -342,8 +362,8 @@ class applet(object):
     
 
   def _init_about_dialog(self):
-    self.about_dlg=gtk.AboutDialog()
-    self.about_dlg.set_default_response(gtk.RESPONSE_CLOSE)
+    self.about_dlg=Gtk.AboutDialog()
+    self.about_dlg.set_default_response(6)
     self.about_dlg.connect('delete-event', self._hide_cb)
     self.about_dlg.connect('response', self._hide_cb)
     try: self.about_dlg.set_program_name("ojuba-personal-lock")
@@ -368,7 +388,7 @@ class applet(object):
 """)
     self.about_dlg.set_website("http://git.ojuba.org/cgit/ojuba-personal-lock/about/")
     self.about_dlg.set_website_label("http://git.ojuba.org/cgit/ojuba-personal-lock/about/")
-    self.about_dlg.set_authors(["Muayyad Saleh Alsadi <alsadi@ojuba.org>"])
+    self.about_dlg.set_authors(["Muayyad Saleh Alsadi <alsadi@ojuba.org>", "Ahmed Raghdy <assmaaarab@gmail.com>"])
     #self.about_dlg.set_documenters(documenters)
     #self.about_dlg.set_artists(artists)
     #self.about_dlg.set_translator_credits(translator_credits)
@@ -376,37 +396,37 @@ class applet(object):
     self.about_dlg.set_logo_icon_name("ojuba-personal-lock")
 
   def _init_menu(self):
-    self._menu = gtk.Menu()
-    i = gtk.ImageMenuItem(gtk.STOCK_NEW)
+    self._menu = Gtk.Menu()
+    i = Gtk.ImageMenuItem().new_from_stock(Gtk.STOCK_NEW,None)
     i.connect('activate', self._new_cb)
     i.set_always_show_image(True)
     self._menu.add(i)
 
-    i = gtk.ImageMenuItem(gtk.STOCK_ADD)
+    i = Gtk.ImageMenuItem().new_from_stock(Gtk.STOCK_ADD,None)
     i.connect('activate', self._add_cb)
     i.set_always_show_image(True)
     self._menu.add(i)
 
-    self._menu.add(gtk.SeparatorMenuItem())
+    self._menu.add(Gtk.SeparatorMenuItem())
 
-    self._mount_submenu = gtk.Menu()
-    self._mount_menu = i = gtk.MenuItem(_("Decrypt"))
+    self._mount_submenu = Gtk.Menu()
+    self._mount_menu = i = Gtk.MenuItem(_("Decrypt"))
     i.set_submenu(self._mount_submenu)
     self._menu.add(i)
 
-    self._unmount_submenu = gtk.Menu()
-    self._unmount_menu = i = gtk.MenuItem(_("Unmount"))
+    self._unmount_submenu = Gtk.Menu()
+    self._unmount_menu = i = Gtk.MenuItem(_("Unmount"))
     i.set_submenu(self._unmount_submenu)
     self._menu.add(i)
 
-    self._menu.add(gtk.SeparatorMenuItem())
+    self._menu.add(Gtk.SeparatorMenuItem())
 
-    i = gtk.ImageMenuItem(gtk.STOCK_ABOUT)
+    i = Gtk.ImageMenuItem().new_from_stock(Gtk.STOCK_ABOUT,None)
     i.connect('activate', lambda *args: self.about_dlg.run())
     i.set_always_show_image(True)
     self._menu.add(i)
     
-    i = gtk.ImageMenuItem(gtk.STOCK_QUIT)
+    i = Gtk.ImageMenuItem().new_from_stock(Gtk.STOCK_QUIT,None)
     i.connect('activate', self.quit)
     i.set_always_show_image(True)
     self._menu.add(i)
@@ -417,10 +437,12 @@ class applet(object):
   def quit(self, *a, **kw):
     ls=self.get_mounted()
     if ls:
-      if not sure(_("Some encrypted folders are still mounted.\nWhich means that your private files are visible.\nMost likely you want to unmount them before you exist.\nAre you sure you want to quit?")): return
+      if not sure(_("Some encrypted folders are still mounted.\nWhich means\
+       that your private files are visible.\nMost likely you want to unmount\
+        them before you exist.\nAre you sure you want to quit?")): return
       if sure(_("Do you want to unmount all encrypted folders?")):
         for d in ls: self._unmount_cb(None, d, False)
-    gtk.main_quit()
+    Gtk.main_quit()
 
   def get_mounted(self):
     l=map(lambda i: i.split(), open('/proc/mounts','r').readlines())
@@ -460,9 +482,9 @@ class applet(object):
     self._last_ls = ls
     self._last_paths = self._paths
     self._menu.popdown()
-    m = gtk.Menu()
+    m = Gtk.Menu()
     for j in ls:
-      i=gtk.MenuItem(os.path.basename(j))
+      i=Gtk.MenuItem(os.path.basename(j))
       i.connect('activate', self._unmount_cb, j)
       m.add(i)
     self._unmount_submenu = m
@@ -470,10 +492,10 @@ class applet(object):
     self._unmount_menu.set_submenu(m)
     del s
 
-    m = gtk.Menu()
+    m = Gtk.Menu()
     for l,j in self._paths:
       if os.path.join(self._base_dir, l) in ls: continue
-      i=gtk.MenuItem(l)
+      i=Gtk.MenuItem(l)
       i.connect('activate', self._mount_cb, (l, j))
       m.add(i)
     self._mount_submenu = m
@@ -484,13 +506,13 @@ class applet(object):
     self._menu.show_all()
 
   def _popup_cb(self, s, button, time):
-    self._menu.popup(None, None, gtk.status_icon_position_menu, button, time, s)
+    self._menu.popup(None, None, Gtk.StatusIcon.position_menu, s, button, time)
 
 bus, bus_name, bus_object=None,None,None
 try:
   import dbus
   import dbus.service
-  #import gobject # for gobject.MainLoop() if no gtk is to be used
+  #import gobject # for gobject.MainLoop() if no Gtk is to be used
   from dbus.mainloop.glib import DBusGMainLoop
 
   dbus_loop = DBusGMainLoop(set_as_default=True)
@@ -529,7 +551,7 @@ def init_dbus():
 def applet_main():
   a=applet()
   init_dbus()
-  gtk.main()
+  Gtk.main()
 
 if __name__ == "__main__":
   applet_main()
