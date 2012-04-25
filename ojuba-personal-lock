@@ -388,7 +388,7 @@ class applet(object):
 """)
     self.about_dlg.set_website("http://git.ojuba.org/cgit/ojuba-personal-lock/about/")
     self.about_dlg.set_website_label("http://git.ojuba.org/cgit/ojuba-personal-lock/about/")
-    self.about_dlg.set_authors(["Muayyad Saleh Alsadi <alsadi@ojuba.org>", "Ahmed Raghdy <assmaaarab@gmail.com>"])
+    self.about_dlg.set_authors(["Muayyad Saleh Alsadi <alsadi@ojuba.org>", "Ahmed Raghdy <asmaaarab@gmail.com>"])
     #self.about_dlg.set_documenters(documenters)
     #self.about_dlg.set_artists(artists)
     #self.about_dlg.set_translator_credits(translator_credits)
