@@ -1,12 +1,13 @@
 Name:		ojuba-personal-lock
 Summary:	Folder Encrpytion GUI
-Version:	0.2.3
+Version:	0.2.4
 Release:	1
 License:	Waqf
 Group:		System Environment/Base
 URL:		http://git.ojuba.org/cgit/ojuba-personal-lock/about/
 Source:		%{name}-%{version}.tar.bz2
-Requires:	fuse-encfs python pygtk2 notify-python
+Requires:	fuse-encfs python
+Requires:   pygobject3 >= 3.0.2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: gettext, intltool
 BuildArch:      noarch
@@ -46,6 +47,9 @@ fi
 %{_datadir}/icons/hicolor/*/apps/*.svg
 
 %changelog
+* Sun Jun 2 2012  Muayyad Saleh AlSadi <alsadi@ojuba.org> - 0.2.4-1
+- port to gtk3
+
 * Mon Jul 19 2010 Muayyad Saleh Alsadi <alsadi@ojuba.org> - 0.2.1-1
 - minor fixes
 
