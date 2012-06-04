@@ -407,7 +407,7 @@ class applet(object):
     i.set_always_show_image(True)
     self._menu.add(i)
 
-    self._menu.add(Gtk.SeparatorMenuItem())
+    self._menu.add(Gtk.SeparatorMenuItem.new())
 
     self._mount_submenu = Gtk.Menu()
     self._mount_menu = i = Gtk.MenuItem(_("Decrypt"))
@@ -419,7 +419,7 @@ class applet(object):
     i.set_submenu(self._unmount_submenu)
     self._menu.add(i)
 
-    self._menu.add(Gtk.SeparatorMenuItem())
+    self._menu.add(Gtk.SeparatorMenuItem.new())
 
     i = Gtk.ImageMenuItem().new_from_stock(Gtk.STOCK_ABOUT,None)
     i.connect('activate', lambda *args: self.about_dlg.run())
