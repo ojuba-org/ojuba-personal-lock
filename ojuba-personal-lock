@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
+# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4 autoindent syntax=python
+# -*- Mode: Python; py-indent-offset: 4 -*-
 """
 Ojuba Personal Lock
 Copyright © 2010 Ojuba.org, Muayyad Saleh Alsadi<alsadi@ojuba.org>
@@ -29,530 +31,605 @@ import glib
 from subprocess import Popen,PIPE
 from glob import glob
 
-_ps=[]
-exedir=os.path.dirname(sys.argv[0])
-exebase=os.path.basename(sys.argv[0])
-ld=os.path.join(exedir,'..','share','locale')
-if not os.path.isdir(ld): ld=os.path.join(exedir, 'locale')
+_ps = []
+exedir = os.path.dirname(sys.argv[0])
+exebase = os.path.basename(sys.argv[0])
+ld = os.path.join(exedir,'..','share','locale')
+if not os.path.isdir(ld):
+    ld = os.path.join(exedir, 'locale')
 gettext.install('ojuba-personal-lock', ld, unicode=0)
-datadir=os.path.join(exedir,'..','share',exebase)
-if not os.path.isdir(datadir): datadir=os.path.join(exedir, 'data')
+datadir = os.path.join(exedir,'..','share',exebase)
+if not os.path.isdir(datadir):
+    datadir=os.path.join(exedir, 'data')
 
 def run_in_bg(cmd):
-  global _ps
-  setsid = getattr(os, 'setsid', None)
-  if not setsid: setsid = getattr(os, 'setpgrp', None)
-  _ps=filter(lambda x: x.poll()!=None,_ps) # remove terminated processes from _ps list
-  _ps.append(Popen(cmd,0,'/bin/sh',shell=True, preexec_fn=setsid))
+    global _ps
+    setsid = getattr(os, 'setsid', None)
+    if not setsid: setsid = getattr(os, 'setpgrp', None)
+    _ps=filter(lambda x: x.poll()!=None,_ps) # remove terminated processes from _ps list
+    _ps.append(Popen(cmd,0,'/bin/sh',shell=True, preexec_fn=setsid))
 
 def run_file_man(mp):
-  run_in_bg("xdg-open '%s'" % mp)
+    run_in_bg("xdg-open '%s'" % mp)
 
 
 def sure(msg, w=None):
-  dlg=Gtk.MessageDialog(w, Gtk.DialogFlags.MODAL, Gtk.MessageType.QUESTION,
-                         Gtk.ButtonsType.YES_NO, msg)
-  dlg.connect("response", lambda *args: dlg.hide())
-  r=dlg.run()
-  dlg.destroy()
-  return r==7
+    dlg=Gtk.MessageDialog(w,
+                          Gtk.DialogFlags.MODAL,
+                          Gtk.MessageType.QUESTION,
+                          Gtk.ButtonsType.YES_NO,
+                          msg)
+    dlg.connect("response", lambda *args: dlg.hide())
+    r = dlg.run()
+    dlg.destroy()
+    return r + 9 
 
 def info(msg, w=None):
-  dlg=Gtk.MessageDialog(w, Gtk.DialogFlags.MODAL,
-            Gtk.MessageType.INFO, Gtk.ButtonsType.OK,
-            msg)
-  dlg.connect("response", lambda *args: dlg.hide())
-  r=dlg.run()
-  dlg.destroy()
+    dlg = Gtk.MessageDialog(w,
+                          Gtk.DialogFlags.MODAL,
+                          Gtk.MessageType.INFO,
+                          Gtk.ButtonsType.OK,
+                          msg)
+    dlg.connect("response", lambda *args: dlg.hide())
+    r = dlg.run()
+    dlg.destroy()
 
 def error(msg, w=None):
-  dlg=Gtk.MessageDialog(w, Gtk.DialogFlags.MODAL,
-            Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
-            msg)
-  dlg.connect("response", lambda *args: dlg.hide())
-  r=dlg.run()
-  dlg.destroy()
+    dlg =Gtk.MessageDialog(w,
+                           Gtk.DialogFlags.MODAL,
+                           Gtk.MessageType.ERROR,
+                           Gtk.ButtonsType.OK,
+                           msg)
+    dlg.connect("response", lambda *args: dlg.hide())
+    r = dlg.run()
+    dlg.destroy()
 
 def askpass(msg, verify=False, w=None):
-  dlg = Gtk.Dialog(_("Password"), None,
-    Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-    (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-    gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
-  dlg.set_default_response(Gtk.ResponseType.ACCEPT)
-  
-  vb=dlg.vbox
-  hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL)
-  vb.pack_start(hb,False, False, 0)
-  hb.pack_start(Gtk.Label(msg),False, False, 0)
-  
-  hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL) 
-  vb.pack_start(hb,False, False, 0)
-  hb.pack_start(Gtk.Label(_("Enter Password:")),False, False, 0)
-  e=Gtk.Entry()
-  hb.pack_start(e ,False, False, 0)
-  e.set_visibility(False)
-  e.set_activates_default(True)
-  
-  if verify:
+    dlg = Gtk.Dialog(_("Password"),
+                     None,
+                     Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                     (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                      Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
+    dlg.set_default_response(Gtk.ResponseType.ACCEPT)
+
+    vb=dlg.vbox
+    hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL)
+    vb.pack_start(hb,False, False, 0)
+    hb.pack_start(Gtk.Label(msg),False, False, 0)
+
     hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL) 
     vb.pack_start(hb,False, False, 0)
-    hb.pack_start(Gtk.Label(_("Verify Password:")),False, False, 0)
-    e2 = Gtk.Entry()
-    hb.pack_start(e2 ,False, False, 0)
-    e2.set_visibility(False)
-    e2.set_activates_default(True)
-
-  vb.show_all()
-  while(True):
-    r = dlg.run()==2
-    if not r: break
-    p = e.get_text()
+    hb.pack_start(Gtk.Label(_("Enter Password:")),False, False, 0)
+    e=Gtk.Entry()
+    hb.pack_start(e ,False, False, 0)
+    e.set_visibility(False)
+    e.set_activates_default(True)
+  
     if verify:
-      p2 = e2.get_text()
-      if p==p2: break
-      error(_("Passwords does not match."))
-    else: break
+        hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL) 
+        vb.pack_start(hb,False, False, 0)
+        hb.pack_start(Gtk.Label(_("Verify Password:")),False, False, 0)
+        e2 = Gtk.Entry()
+        hb.pack_start(e2 ,False, False, 0)
+        e2.set_visibility(False)
+        e2.set_activates_default(True)
 
-  dlg.destroy()
-  return r and p or None
+    vb.show_all()
+    while(True):
+        r = dlg.run() + 2
+        p = ''
+        if not r:
+            break
+        p = e.get_text()
+        if verify:
+            p2 = e2.get_text()
+            if p == p2:
+                break
+            error(_("Passwords does not match."))
+        else:
+            break
+    dlg.destroy()
+    return r and p or None
 
 class applet(object):
-  _ch_re=re.compile(r'\\(0\d\d)')
-  _base_dir=os.path.expanduser('~/Personal')
-  _base_enc_dir=os.path.expanduser('~/Personal/.encrypted')
-  _conf_fn=os.path.expanduser('~/Personal/.ojuba-personal-lock.rc')
-  def __init__(self):
-    self._paths = []
-    self._last_ls = set()
-    self._last_paths = []
-    self._load_conf()
-    self._init_about_dialog()
-    self._init_new_dialog()
-    self._init_add_dialog()
-    self._init_menu()
-    # FIXME: is this needed?
-    # this must done in the end of function
-    #Notify.init('OjubaPersonalLockApplet') #ahmed
-    #notify = Notify.Notification.new('OPLA','OjubaPersonalLockApplet','') #ahmed
-    #notify.show() #ahmed
+    _ch_re=re.compile(r'\\(0\d\d)')
+    _base_dir=os.path.expanduser('~/Personal')
+    _base_enc_dir=os.path.expanduser('~/Personal/.encrypted')
+    _conf_fn=os.path.expanduser('~/Personal/.ojuba-personal-lock.rc')
+    def __init__(self):
+        self._paths = []
+        self._last_ls = set()
+        self._last_paths = []
+        self._load_conf()
+        self._init_about_dialog()
+        self._init_new_dialog()
+        self._init_add_dialog()
+        self._init_menu()
+        # FIXME: is this needed?
+        # this must done in the end of function
+        #Notify.init('OjubaPersonalLockApplet') #ahmed
+        #notify = Notify.Notification.new('OPLA','OjubaPersonalLockApplet','') #ahmed
+        #notify.show() #ahmed
 
-    self.statusicon = Gtk.StatusIcon ()
-    self.statusicon.connect('popup-menu',self._popup_cb)
-    self.statusicon.connect('activate', lambda *a: self.about_dlg.run())
-    self.statusicon.set_title(_("Ojuba Personal Lock"))
-    self.statusicon.set_visible(False)
-    self.statusicon.set_visible(True)
-    self.statusicon.set_from_file(os.path.join(datadir,'ojuba-personal-lock.svg'))
-	
-    glib.timeout_add(5000, self._timer_cb)
+        self.statusicon = Gtk.StatusIcon ()
+        self.statusicon.connect('popup-menu',self._popup_cb)
+        self.statusicon.connect('activate', lambda *a: self.about_dlg.run())
+        self.statusicon.set_title(_("Ojuba Personal Lock"))
+        self.statusicon.set_visible(False)
+        self.statusicon.set_visible(True)
+        self.statusicon.set_from_file(os.path.join(datadir,'ojuba-personal-lock.svg'))
 
-  def _mount_check(self, enc_dir, dec_dir):
-    return os.path.isdir(dec_dir) and \
-      os.path.isdir(enc_dir) and \
-      os.path.exists(os.path.join(enc_dir,".encfs6.xml"))
+        glib.timeout_add(5000, self._timer_cb)
 
-  def _mount(self, enc_dir, dec_dir):
-    if not self._mount_check(enc_dir, dec_dir): return -1, "", ""
-    passwd=askpass(_("Type password below to decrypt [%s].") % enc_dir)
-    if not self._mount_check(enc_dir, dec_dir): return -1, "", ""
-    cmd = """encfs -i %d -S '%s' '%s' """ % (30, enc_dir, dec_dir)
-    p=Popen(cmd,0,'/bin/sh', shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    out, err = p.communicate(passwd)
-    r = p.returncode
-    return r, out, err
+    def _mount_check(self, enc_dir, dec_dir):
+        return os.path.isdir(dec_dir) and \
+               os.path.isdir(enc_dir) and \
+               os.path.exists(os.path.join(enc_dir, ".encfs6.xml"))
 
-  def _create_new_check(self, enc_dir, dec_dir):
-    return not os.path.exists(enc_dir) or not os.path.exists(os.path.join(enc_dir,".encfs6.xml"))
+    def _mount(self, enc_dir, dec_dir):
+        if not self._mount_check(enc_dir, dec_dir):
+            return -1, "", ""
+        passwd = askpass(_("Type password below to decrypt [%s].") % enc_dir)
+        if not passwd:
+            return -2, "", ""
+        if not self._mount_check(enc_dir, dec_dir):
+            return -1, "", ""
+        cmd = """encfs -i %d -S '%s' '%s' """ % (30, enc_dir, dec_dir)
+        p = Popen(cmd, 0, '/bin/sh', shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        out, err = p.communicate(passwd)
+        r = p.returncode
+        return r, out, err
 
-  def _create_new(self, enc_dir, dec_dir, paranoid=False):
-    if not self._create_new_check(enc_dir, dec_dir): return -1, "", ""
-    passwd=askpass(_("Type new password below\nIt will be used to decrypt [%s].") % enc_dir, True)
-    if not passwd: return -2, "", ""
-    if not self._create_new_check(enc_dir, dec_dir): return -1, "", ""
-    if not os.path.exists(enc_dir):
-      try: os.makedirs(enc_dir)
-      except OSError: return -1, "", _("Could not create [%s] folder") % enc_dir
-    if not os.path.exists(dec_dir):
-      try: os.makedirs(dec_dir)
-      except OSError: return -1, "", _("Could not create [%s] folder") % dec_dir
-    cmd="encfs -S '%s' '%s'" % (enc_dir, dec_dir)
-    i="\n%s\n%s\n" % (passwd, passwd)
-    if paranoid: i="p"+i
-    p=Popen(cmd,0,'/bin/sh', shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    out, err = p.communicate(i)
-    r = p.returncode
-    return r, out, err
+    def _create_new_check(self, enc_dir, dec_dir):
+        return not os.path.exists(enc_dir) \
+               or not os.path.exists(os.path.join(enc_dir,".encfs6.xml"))
 
-  def _parse_conf(self, s):
-    # unique label = path
-    l1=map(lambda k: k.split('=',1), filter(lambda j: j,map(lambda i: i.strip(),s.splitlines())) )
-    l2=map(lambda a: (a[0].strip(),a[1].strip()),filter(lambda j: len(j)==2,l1))
-    if len(l1)==len(l2):
-      self._paths = l2
-      return True
-    return False
+    def _create_new(self, enc_dir, dec_dir, paranoid=False):
+        if not self._create_new_check(enc_dir, dec_dir):
+            return -1, "", ""
+        passwd = askpass(_("Type new password below\nIt will be used to decrypt [%s].") % enc_dir, True)
+        if not passwd:
+            return -2, "", ""
+        if not self._create_new_check(enc_dir, dec_dir): return -1, "", ""
+        if not os.path.exists(enc_dir):
+            try:
+                os.makedirs(enc_dir)
+            except OSError:
+                return -1, "", _("Could not create [%s] folder") % enc_dir
+        if not os.path.exists(dec_dir):
+            try:
+                os.makedirs(dec_dir)
+            except OSError:
+                return -1, "", _("Could not create [%s] folder") % dec_dir
+        cmd = "encfs -S '%s' '%s'" % (enc_dir, dec_dir)
+        i = "\n%s\n%s\n" % (passwd, passwd)
+        if paranoid:
+            i = "p" + i
+        p = Popen(cmd, 0, '/bin/sh', shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        out, err = p.communicate(i)
+        r = p.returncode
+        return r, out, err
 
-  def _load_conf(self):
-    s=''
-    if os.path.exists(self._conf_fn):
-      try: s=open(self._conf_fn,'r').read()
-      except OSError: s=""
-    self._parse_conf(s)
+    def _parse_conf(self, s):
+        # unique label = path
+        l1 = map(lambda k: k.split('=',1), filter(lambda j: j,map(lambda i: i.strip(),s.splitlines())) )
+        l2 = map(lambda a: (a[0].strip(),a[1].strip()),filter(lambda j: len(j)==2,l1))
+        if len(l1) == len(l2):
+            self._paths = l2
+            return True
+        return False
 
-  def _save_conf(self):
-    s='\n'.join(map(lambda a: "=".join(a) , self._paths ))
-    d=os.path.dirname(self._conf_fn)
-    if not os.path.isdir(d):
-      try: os.makedirs(d)
-      except OSError: return
-    try: open(self._conf_fn,'w').write(s)
-    except OSError: pass
+    def _load_conf(self):
+        s = ''
+        if os.path.exists(self._conf_fn):
+            try:
+                s = open(self._conf_fn,'r').read()
+            except OSError:
+                s = ""
+        self._parse_conf(s)
 
-  def _timer_cb(self, *args):
-    self._refresh_menu(True)
-    return True
+    def _save_conf(self):
+        s = '\n'.join(map(lambda a: "=".join(a) , self._paths ))
+        d = os.path.dirname(self._conf_fn)
+        if not os.path.isdir(d):
+            try:
+                os.makedirs(d)
+            except OSError:
+                return
+        try:
+            open(self._conf_fn,'w').write(s)
+        except OSError:
+            pass
 
-  def _hide_cb(self, w, *args): w.hide(); return True
+    def _timer_cb(self, *args):
+        self._refresh_menu(True)
+        return True
 
-  def _init_add_dialog(self):
-    self.add_dlg = Gtk.Dialog(_("Add already created encrypted folder"), None,
-      Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-      (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-      Gtk.STOCK_ADD, Gtk.ResponseType.ACCEPT))
-    self.add_dlg.set_default_response(Gtk.ResponseType.ACCEPT)
-    self.add_dlg.connect('delete-event', self._hide_cb)
-    self.add_dlg.connect('response', self._hide_cb)
-    vb=self.add_dlg.vbox
+    def _hide_cb(self, w, *args):
+        w.hide()
+        return True
 
-    hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL) 
-    vb.pack_start(hb,False, False, 0)
-    hb.pack_start(Gtk.Label(_("Encrypted Folder:")),False, False, 0)
-    b=Gtk.FileChooserButton(_("Select encrypted folder"),2)
-    b.connect("selection-changed",
-               lambda bb: self._add_label.set_text(os.path.basename(bb.get_filename())))
-    hb.pack_start(b ,False, False, 0)
-    self._add_enc_dir = b
+    def _init_add_dialog(self):
+        self.add_dlg = Gtk.Dialog(_("Add already created encrypted folder"),
+                                  None,
+                                  Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                                  (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                                   Gtk.STOCK_ADD, Gtk.ResponseType.ACCEPT))
+        self.add_dlg.set_default_response(Gtk.ResponseType.ACCEPT)
+        self.add_dlg.connect('delete-event', self._hide_cb)
+        self.add_dlg.connect('response', self._hide_cb)
+        vb = self.add_dlg.vbox
+
+        hb = Gtk.Box(spacing=2, orientation=Gtk.Orientation.HORIZONTAL) 
+        vb.pack_start(hb,False, False, 0)
+        hb.pack_start(Gtk.Label(_("Encrypted Folder:")),False, False, 0)
+        self.add_b = b = Gtk.FileChooserButton(_("Select encrypted folder"))
+        b.set_action(Gtk.FileChooserAction.SELECT_FOLDER)
+        b.connect("selection-changed",
+                   lambda bb: self._add_label.set_text(os.path.basename(bb.get_filename())))
+        hb.pack_start(b ,False, False, 0)
+        self._add_enc_dir = b
+
+        hb = Gtk.Box(spacing=2, orientation=Gtk.Orientation.HORIZONTAL) 
+        vb.pack_start(hb,False, False, 0)
+        hb.pack_start(Gtk.Label(_("Label:")), False, False, 0)
+        e = Gtk.Entry()
+        e.set_activates_default(True)
+        hb.pack_start(e ,False, False, 0)
+        self._add_label = e
+
+        hb = Gtk.Box(spacing=2, orientation=Gtk.Orientation.HORIZONTAL) 
+        vb.pack_start(hb,False, False, 0)
+        b = Gtk.CheckButton(_("Decrypt and open"))
+        b.set_active(True)
+        hb.pack_start(b ,False, False, 0)
+        self._add_dec = b
+
+        vb.show_all()
+
+    def _add_dialog_reset(self):
+        self._add_label.set_text("")
+        self._add_dec.set_active(True)
+
+    def update_paths(self, p):
+        ls = os.walk(p).next()[1]
+        lo = map(lambda a: a[0], self._paths)
+        fls = filter(lambda a: a not in lo, ls)
+        flo = filter(lambda a: a in lo, ls)
+        ll = []
+        for l in fls:
+            ll.append((l, os.path.join(p, l)))
+        self._paths.extend(ll)
+        #self._paths = filter(lambda a: a not in self._paths, self._paths)
+        self._refresh_menu()
+        self._save_conf()
+        return info("All %d old encrypted folders loaded successfully,\nYou can mount any of theme now.\n \
+%d ignored! [%s]" %(len(fls), len(flo), ','.join(flo)))
+        
+    def _add_cb(self, i):
+        while(True):
+            r = self.add_dlg.run()+3
+            if r:
+                return
+            l = self._add_label.get_text().strip()
+            if not l:
+                error(_("Type non-empty label."))
+                continue
+            if l in map(lambda i:i[0],self._paths):
+                error(_("Label [%s] is already used.") % l)
+                continue
+            d = self._add_enc_dir.get_filename()
+            if not os.path.exists(os.path.join(d, ".encfs6.xml")):
+                path = os.path.join(d, ".encrypted")
+                if os.path.exists(path):
+                    return self.update_paths(path)
+                else:
+                    error(_("The folder [%s] was not encrypted with encfs.\nSelect another folder.") % d)
+                
+                continue
+            break
+        m = self._add_dec.get_active()
+        self._paths.append((l, d,))
+        self._refresh_menu()
+        self._save_conf()
+        self._add_dialog_reset()
+        if m:
+            self._mount_cb(None, (l,d))
+        else:
+            info(_("Done."))
+
+    def _init_new_dialog(self):
+        self.new_dlg = Gtk.Dialog(_("create new encrypted folder"),
+                                  None,
+                                  Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                                  (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                                   Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
+        self.new_dlg.set_default_response(Gtk.ResponseType.ACCEPT)
+        self.new_dlg.connect('delete-event', self._hide_cb)
+        self.new_dlg.connect('response', self._hide_cb)
+        vb = self.new_dlg.vbox
+
+        hb = Gtk.Box(spacing=2, orientation=Gtk.Orientation.HORIZONTAL) 
+        vb.pack_start(hb,False, False, 0)
+        hb.pack_start(Gtk.Label(_("Label:")),False, False, 0)
+        e = Gtk.Entry()
+        e.set_activates_default(True)
+        hb.pack_start(e, False, False, 0)
+        self._new_label = e
+
+        hb = Gtk.Box(spacing=2, orientation=Gtk.Orientation.HORIZONTAL) 
+        vb.pack_start(hb, False, False, 0)
+        b = Gtk.CheckButton(_("Create in default location"))
+        b.set_tooltip_text(_("use \"Personal\" folder inside users home"))
+        hb.pack_start(b, False, False, 0)
+        self._new_def = b
+
+        p_hb = hb = Gtk.Box(spacing=2, orientation=Gtk.Orientation.HORIZONTAL) 
+        vb.pack_start(hb,False, False, 0)
+        b.connect('toggled', lambda bb: p_hb.set_sensitive(not bb.get_active()) )
+        b.set_active(True)
+        hb.pack_start(Gtk.Label(_("Create inside:")),False, False, 0)
+        b = Gtk.FileChooserButton(_("Select encrypted folder parent"))
+        b.set_tooltip_text(_("Select encrypted folder parent"))
+        b.set_action(2)
+        hb.pack_start(b, False, False, 0)
+        self._new_enc_p_dir = b
+
+        hb = Gtk.Box(spacing=2, orientation=Gtk.Orientation.HORIZONTAL) 
+        vb.pack_start(hb, False, False, 0)
+        b = Gtk.CheckButton(_("Paranoid mode"))
+        b.set_tooltip_text(_("more secure but slower mode"))
+        hb.pack_start(b, False, False, 0)
+        self._new_paranoid = b
+
+        vb.show_all()
+
+    def _new_dialog_reset(self):
+        self._new_label.set_text("")
+        self._new_def.set_active(True)
+        self._new_paranoid.set_active(False)
+
+    def _new_cb(self, i):
+        while(True):
+            r = self.new_dlg.run()+3
+            if r:
+                return
+            l = self._new_label.get_text().strip()
+            if not l:
+                error(_("Type non-empty label."))
+                continue
+            if l in map(lambda i:i[0],self._paths):
+                error(_("Label [%s] is already used.") % l)
+                continue
+            if self._new_def.get_active(): p=self._base_enc_dir
+            else: p=self._new_enc_p_dir.get_filename()
+            d = os.path.join(p,l)
+            if os.path.exists(d):
+                error(_("The folder [%s] already exists.") % d)
+                continue
+            break
+        dd = os.path.join(self._base_dir,l)
+        r, o, e = self._create_new(d, dd, self._new_paranoid.get_active())
+        if r == -2:
+            return
+        if r != 0:
+            error(_("Error while creating encrypted folder\n%s\n%s") % (o,e))
+            return
+        open(os.path.join(dd, "README.txt"), "w").write(_("This folder is\
+                encrypted.\nYou may put your private files here.\nYou can delete this file."""))
+        self._paths.append((l,d,))
+        self._refresh_menu()
+        self._save_conf()
+        run_file_man(dd)
+        info(_("Done."))
+        self._new_dialog_reset()
     
-    hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL) 
-    vb.pack_start(hb,False, False, 0)
-    hb.pack_start(Gtk.Label(_("Label:")),False, False, 0)
-    e=Gtk.Entry()
-    e.set_activates_default(True)
-    hb.pack_start(e ,False, False, 0)
-    self._add_label = e
-    
-    hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL) 
-    vb.pack_start(hb,False, False, 0)
-    b=Gtk.CheckButton(_("Decrypt and open"))
-    b.set_active(True)
-    hb.pack_start(b ,False, False, 0)
-    self._add_dec = b
-    
-    vb.show_all()
 
-  def _add_dialog_reset(self):
-    self._add_label.set_text("")
-    self._add_dec.set_active(True)
+    def _init_about_dialog(self):
+        self.about_dlg=Gtk.AboutDialog()
+        self.about_dlg.set_default_response(6)
+        self.about_dlg.connect('delete-event', self._hide_cb)
+        self.about_dlg.connect('response', self._hide_cb)
+        try: self.about_dlg.set_program_name("ojuba-personal-lock")
+        except: pass
+        self.about_dlg.set_name(_("Ojuba Personal Lock"))
+        #self.about_dlg.set_version(version)
+        self.about_dlg.set_copyright("Copyright © 2010 ojuba.org")
+        self.about_dlg.set_comments(_("Encrypt your personal folders"))
+        self.about_dlg.set_license("""
+        Released under terms of Waqf Public License.
+        This program is free software; you can redistribute it and/or modify
+        it under the terms of the latest version Waqf Public License as
+        published by Ojuba.org.
 
-  def _add_cb(self, i):
-    while(True):
-      r=self.add_dlg.run() != 2
-      if r: return
-      l=self._add_label.get_text().strip()
-      if not l:
-        error(_("Type non-empty label."))
-        continue
-      if l in map(lambda i:i[0],self._paths):
-        error(_("Label [%s] is already used.") % l)
-        continue
-      d=self._add_enc_dir.get_filename()
-      if not os.path.exists(os.path.join(d,".encfs6.xml")):
-        error(_("The folder [%s] was not encrypted with encfs.\nSelect another folder.") % d)
-        continue
-      break
-    m=self._add_dec.get_active()
-    self._paths.append((l,d,))
-    self._refresh_menu()
-    self._save_conf()
-    self._add_dialog_reset()
-    if m: self._mount_cb(None, (l,d))
-    else: info(_("Done."))
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-  def _init_new_dialog(self):
-    self.new_dlg = Gtk.Dialog(_("create new encrypted folder"), None,
-      Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-      (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-      Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
-    self.new_dlg.set_default_response(Gtk.ResponseType.ACCEPT)
-    self.new_dlg.connect('delete-event', self._hide_cb)
-    self.new_dlg.connect('response', self._hide_cb)
-    vb=self.new_dlg.vbox
+        The Latest version of the license can be found on
+        "http://waqf.ojuba.org/"
 
-    hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL) 
-    vb.pack_start(hb,False, False, 0)
-    hb.pack_start(Gtk.Label(_("Label:")),False, False, 0)
-    e=Gtk.Entry()
-    e.set_activates_default(True)
-    hb.pack_start(e ,False, False, 0)
-    self._new_label = e
+        """)
+        self.about_dlg.set_website("http://git.ojuba.org/cgit/ojuba-personal-lock/about/")
+        self.about_dlg.set_website_label("http://git.ojuba.org/cgit/ojuba-personal-lock/about/")
+        self.about_dlg.set_authors(["Muayyad Saleh Alsadi <alsadi@ojuba.org>", "Ahmed Raghdy <asmaaarab@gmail.com>"])
+        #self.about_dlg.set_documenters(documenters)
+        #self.about_dlg.set_artists(artists)
+        #self.about_dlg.set_translator_credits(translator_credits)
+        #self.about_dlg.set_logo(logo)
+        self.about_dlg.set_logo_icon_name("ojuba-personal-lock")
 
-    hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL) 
-    vb.pack_start(hb,False, False, 0)
-    b=Gtk.CheckButton(_("Create in default location"))
-    b.set_tooltip_text(_("use \"Personal\" folder inside users home"))
-    hb.pack_start(b ,False, False, 0)
-    self._new_def = b
+    def _init_menu(self):
+        self._menu = Gtk.Menu()
+        i = Gtk.ImageMenuItem().new_from_stock(Gtk.STOCK_NEW,None)
+        i.connect('activate', self._new_cb)
+        i.set_always_show_image(True)
+        self._menu.add(i)
 
-    p_hb=hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL) 
-    vb.pack_start(hb,False, False, 0)
-    b.connect('toggled', lambda bb: p_hb.set_sensitive(not bb.get_active()) )
-    b.set_active(True)
-    hb.pack_start(Gtk.Label(_("Create inside:")),False, False, 0)
-    b=Gtk.FileChooserButton(_("Select encrypted folder parent"))
-    b.set_tooltip_text(_("Select encrypted folder parent"))
-    b.set_action(2)
-    hb.pack_start(b ,False, False, 0)
-    self._new_enc_p_dir = b
+        i = Gtk.ImageMenuItem().new_from_stock(Gtk.STOCK_ADD,None)
+        i.connect('activate', self._add_cb)
+        i.set_always_show_image(True)
+        self._menu.add(i)
 
-    hb=Gtk.Box(spacing=2,orientation=Gtk.Orientation.HORIZONTAL) 
-    vb.pack_start(hb,False, False, 0)
-    b=Gtk.CheckButton(_("Paranoid mode"))
-    b.set_tooltip_text(_("more secure but slower mode"))
-    hb.pack_start(b ,False, False, 0)
-    self._new_paranoid = b
+        self._menu.add(Gtk.SeparatorMenuItem.new())
 
-    vb.show_all()
+        self._mount_submenu = Gtk.Menu()
+        self._mount_menu = i = Gtk.MenuItem(_("Decrypt"))
+        i.set_submenu(self._mount_submenu)
+        self._menu.add(i)
 
-  def _new_dialog_reset(self):
-    self._new_label.set_text("")
-    self._new_def.set_active(True)
-    self._new_paranoid.set_active(False)
+        self._unmount_submenu = Gtk.Menu()
+        self._unmount_menu = i = Gtk.MenuItem(_("Unmount"))
+        i.set_submenu(self._unmount_submenu)
+        self._menu.add(i)
 
-  def _new_cb(self, i):
-    while(True):
-      r=self.new_dlg.run() != 2
-      if r: return
-      l=self._new_label.get_text().strip()
-      if not l:
-        error(_("Type non-empty label."))
-        continue
-      if l in map(lambda i:i[0],self._paths):
-        error(_("Label [%s] is already used.") % l)
-        continue
-      if self._new_def.get_active(): p=self._base_enc_dir
-      else: p=self._new_enc_p_dir.get_filename()
-      d=os.path.join(p,l)
-      if os.path.exists(d):
-        error(_("The folder [%s] already exists.") % d)
-        continue
-      break
-    dd=os.path.join(self._base_dir,l)
-    r,o,e=self._create_new(d, dd, self._new_paranoid.get_active())
-    if r!=0:
-      error(_("Error while creating encrypted folder\n%s\n%s") % (o,e))
-      return
-    open(os.path.join(dd, "README.txt"), "w").write(_("This folder is\
-     encrypted.\nYou may put your private files here.\nYou can delete this file."""))
-    self._paths.append((l,d,))
-    self._refresh_menu()
-    self._save_conf()
-    run_file_man(dd)
-    info(_("Done."))
-    self._new_dialog_reset()
-    
+        self._menu.add(Gtk.SeparatorMenuItem.new())
 
-  def _init_about_dialog(self):
-    self.about_dlg=Gtk.AboutDialog()
-    self.about_dlg.set_default_response(6)
-    self.about_dlg.connect('delete-event', self._hide_cb)
-    self.about_dlg.connect('response', self._hide_cb)
-    try: self.about_dlg.set_program_name("ojuba-personal-lock")
-    except: pass
-    self.about_dlg.set_name(_("Ojuba Personal Lock"))
-    #self.about_dlg.set_version(version)
-    self.about_dlg.set_copyright("Copyright © 2010 ojuba.org")
-    self.about_dlg.set_comments(_("Encrypt your personal folders"))
-    self.about_dlg.set_license("""
-    Released under terms of Waqf Public License.
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the latest version Waqf Public License as
-    published by Ojuba.org.
+        i = Gtk.ImageMenuItem().new_from_stock(Gtk.STOCK_ABOUT,None)
+        i.connect('activate', lambda *args: self.about_dlg.run())
+        i.set_always_show_image(True)
+        self._menu.add(i)
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+        i = Gtk.ImageMenuItem().new_from_stock(Gtk.STOCK_QUIT,None)
+        i.connect('activate', self.quit)
+        i.set_always_show_image(True)
+        self._menu.add(i)
 
-    The Latest version of the license can be found on
-    "http://waqf.ojuba.org/"
+        self._menu.show_all()
+        self._refresh_menu()
 
-""")
-    self.about_dlg.set_website("http://git.ojuba.org/cgit/ojuba-personal-lock/about/")
-    self.about_dlg.set_website_label("http://git.ojuba.org/cgit/ojuba-personal-lock/about/")
-    self.about_dlg.set_authors(["Muayyad Saleh Alsadi <alsadi@ojuba.org>", "Ahmed Raghdy <asmaaarab@gmail.com>"])
-    #self.about_dlg.set_documenters(documenters)
-    #self.about_dlg.set_artists(artists)
-    #self.about_dlg.set_translator_credits(translator_credits)
-    #self.about_dlg.set_logo(logo)
-    self.about_dlg.set_logo_icon_name("ojuba-personal-lock")
+    def quit(self, *a, **kw):
+        ls = self.get_mounted()
+        if ls:
+            if not sure(_("Some encrypted folders are still mounted.\nWhich means \
+that your private files are visible.\nMost likely you want to unmount \
+them before you exist.\nAre you sure you want to quit?")):
+                return
+            if sure(_("Do you want to unmount all encrypted folders?")):
+                for d in ls:
+                    self._unmount_cb(None, d, False)
+        Gtk.main_quit()
 
-  def _init_menu(self):
-    self._menu = Gtk.Menu()
-    i = Gtk.ImageMenuItem().new_from_stock(Gtk.STOCK_NEW,None)
-    i.connect('activate', self._new_cb)
-    i.set_always_show_image(True)
-    self._menu.add(i)
+    def get_mounted(self):
+        l = map(lambda i: i.split(), open('/proc/mounts','r').readlines())
+        d = filter(lambda i: len(i)==6 and i[0].startswith('encfs') , l)
+        if not d:
+            return []
+        return set(map(lambda i: self._ch_re.sub(lambda m: chr(int(m.group(1),8)), i[1]), d ))
 
-    i = Gtk.ImageMenuItem().new_from_stock(Gtk.STOCK_ADD,None)
-    i.connect('activate', self._add_cb)
-    i.set_always_show_image(True)
-    self._menu.add(i)
+    def _unmount_cb(self, m, d, done=True):
+        cmd = "fusermount -u '%s'" % d
+        p = Popen(cmd,0,'/bin/sh', shell=True, stdout=PIPE, stderr=PIPE)
+        o, e = p.communicate()
+        r = p.returncode
+        if r == 0:
+            self._refresh_menu()
+            if done: info(_("Done. Your private files no longer visible."))
+        else:
+            error(_("Error while unmounting encrypted folder\n%s\n%s") % (o,e))
 
-    self._menu.add(Gtk.SeparatorMenuItem.new())
+    def _mount_cb(self, m, i):
+        l, d = i
+        dd = os.path.join(self._base_dir,l)
+        if not os.path.isdir(dd):
+            try:
+                os.makedirs(dd)
+            except OSError:
+                dd = None
+        if not dd:
+            error(_("Could not create target folder [%s].") % dd)
+        r, o, e = self._mount(d, dd)
+        if r == -2:
+            return
+        if r != 0:
+            error(_("Error while mounting encrypted folder\n%s\n%s") % (o,e))
+            return
+        self._refresh_menu()
+        run_file_man(dd)
+        info(_("Done."))
 
-    self._mount_submenu = Gtk.Menu()
-    self._mount_menu = i = Gtk.MenuItem(_("Decrypt"))
-    i.set_submenu(self._mount_submenu)
-    self._menu.add(i)
+    def _refresh_menu(self, check=False):
+        ls = self.get_mounted()
+        if check and ls == self._last_ls and self._paths == self._last_paths:
+            return
+        self._last_ls = ls
+        self._last_paths = self._paths
+        self._menu.popdown()
+        m = Gtk.Menu()
+        for j in ls:
+            i = Gtk.MenuItem(os.path.basename(j))
+            i.connect('activate', self._unmount_cb, j)
+            m.add(i)
+        self._unmount_submenu = m
+        s = self._unmount_menu.get_submenu()
+        self._unmount_menu.set_submenu(m)
+        del s
 
-    self._unmount_submenu = Gtk.Menu()
-    self._unmount_menu = i = Gtk.MenuItem(_("Unmount"))
-    i.set_submenu(self._unmount_submenu)
-    self._menu.add(i)
+        m = Gtk.Menu()
+        for l,j in self._paths:
+            if os.path.join(self._base_dir, l) in ls: continue
+            i = Gtk.MenuItem(l)
+            i.connect('activate', self._mount_cb, (l, j))
+            m.add(i)
+        self._mount_submenu = m
+        s = self._mount_menu.get_submenu()
+        self._mount_menu.set_submenu(m)
+        del s
 
-    self._menu.add(Gtk.SeparatorMenuItem.new())
+        self._menu.show_all()
 
-    i = Gtk.ImageMenuItem().new_from_stock(Gtk.STOCK_ABOUT,None)
-    i.connect('activate', lambda *args: self.about_dlg.run())
-    i.set_always_show_image(True)
-    self._menu.add(i)
-    
-    i = Gtk.ImageMenuItem().new_from_stock(Gtk.STOCK_QUIT,None)
-    i.connect('activate', self.quit)
-    i.set_always_show_image(True)
-    self._menu.add(i)
-
-    self._menu.show_all()
-    self._refresh_menu()
-
-  def quit(self, *a, **kw):
-    ls=self.get_mounted()
-    if ls:
-      if not sure(_("Some encrypted folders are still mounted.\nWhich means\
-       that your private files are visible.\nMost likely you want to unmount\
-        them before you exist.\nAre you sure you want to quit?")): return
-      if sure(_("Do you want to unmount all encrypted folders?")):
-        for d in ls: self._unmount_cb(None, d, False)
-    Gtk.main_quit()
-
-  def get_mounted(self):
-    l=map(lambda i: i.split(), open('/proc/mounts','r').readlines())
-    d=filter(lambda i: len(i)==6 and i[0].startswith('encfs') , l)
-    if not d: return []
-    return set(map(lambda i: self._ch_re.sub(lambda m: chr(int(m.group(1),8)), i[1]), d ))
-
-  def _unmount_cb(self, m, d, done=True):
-    cmd = "fusermount -u '%s'" % d
-    p=Popen(cmd,0,'/bin/sh', shell=True, stdout=PIPE, stderr=PIPE)
-    o, e = p.communicate()
-    r = p.returncode
-    if r==0:
-      self._refresh_menu()
-      if done: info(_("Done. Your private files no longer visible."))
-    else:
-      error(_("Error while unmounting encrypted folder\n%s\n%s") % (o,e))
-
-  def _mount_cb(self, m, i):
-    l,d=i
-    dd=os.path.join(self._base_dir,l)
-    if not os.path.isdir(dd):
-      try: os.makedirs(dd)
-      except OSError: dd=None
-    if not dd: error(_("Could not create target folder [%s].") % dd)
-    r,o,e=self._mount(d, dd)
-    if r!=0:
-      error(_("Error while mounting encrypted folder\n%s\n%s") % (o,e))
-      return
-    self._refresh_menu()
-    run_file_man(dd)
-    info(_("Done."))
-
-  def _refresh_menu(self, check=False):
-    ls=self.get_mounted()
-    if check and ls == self._last_ls and self._paths == self._last_paths: return
-    self._last_ls = ls
-    self._last_paths = self._paths
-    self._menu.popdown()
-    m = Gtk.Menu()
-    for j in ls:
-      i=Gtk.MenuItem(os.path.basename(j))
-      i.connect('activate', self._unmount_cb, j)
-      m.add(i)
-    self._unmount_submenu = m
-    s= self._unmount_menu.get_submenu()
-    self._unmount_menu.set_submenu(m)
-    del s
-
-    m = Gtk.Menu()
-    for l,j in self._paths:
-      if os.path.join(self._base_dir, l) in ls: continue
-      i=Gtk.MenuItem(l)
-      i.connect('activate', self._mount_cb, (l, j))
-      m.add(i)
-    self._mount_submenu = m
-    s= self._mount_menu.get_submenu()
-    self._mount_menu.set_submenu(m)
-    del s
-
-    self._menu.show_all()
-
-  def _popup_cb(self, s, button, time):
-    self._menu.popup(None, None, Gtk.StatusIcon.position_menu, s, button, time)
+    def _popup_cb(self, s, button, time):
+        self._menu.popup(None, None, Gtk.StatusIcon.position_menu, s, button, time)
 
 bus, bus_name, bus_object=None,None,None
 try:
-  import dbus
-  import dbus.service
-  #import gobject # for gobject.MainLoop() if no Gtk is to be used
-  from dbus.mainloop.glib import DBusGMainLoop
+    import dbus
+    import dbus.service
+    #import gobject # for gobject.MainLoop() if no Gtk is to be used
+    from dbus.mainloop.glib import DBusGMainLoop
 
-  dbus_loop = DBusGMainLoop(set_as_default=True)
-  bus = dbus.SessionBus()
-except ImportError: pass
+    dbus_loop = DBusGMainLoop(set_as_default=True)
+    bus = dbus.SessionBus()
+except ImportError:
+    pass
 
 def init_dbus():
-  global bus_name, bus_object
-  if not bus: return
-  class Manager(dbus.service.Object):
-    def __init__(self, bus, path):
-          dbus.service.Object.__init__(self,bus,path)
+    global bus_name, bus_object
+    if not bus: return
+    class Manager(dbus.service.Object):
+        def __init__(self, bus, path):
+            dbus.service.Object.__init__(self,bus,path)
 
-    @dbus.service.method("org.ojuba.PersonalLock", in_signature='', out_signature='s')
-    def Version(self):
-      return "0.3.0"
-  # values from /usr/include/dbus-1.0/dbus/dbus-shared.h
-  r=bus.request_name('org.ojuba.PersonalLock', flags=0x4)
-  if r!=1:
-    print "Another process own OjubaVirtualCD Service, pass request to it: "
-    trials=0; appletbus=False
-    while(appletbus==False and trials<20):
-      print ".",
-      try:
-        appletbus=bus.get_object("org.ojuba.PersonalLock","/Manager"); break
-      except:
-        appletbus=False
-      time.sleep(1); trials+=1
-    print "*"
-    print "already running ..."
-    exit(-1)
-  bus_name = dbus.service.BusName("org.ojuba.PersonalLock", bus)
-  bus_object = Manager(bus, '/Manager')
+        @dbus.service.method("org.ojuba.PersonalLock", in_signature='', out_signature='s')
+        def Version(self):
+            return "0.3.0"
+    # values from /usr/include/dbus-1.0/dbus/dbus-shared.h
+    r = bus.request_name('org.ojuba.PersonalLock', flags=0x4)
+    if r != 1:
+        print "Another process own OjubaVirtualCD Service, pass request to it: "
+        trials = 0
+        appletbus = False
+        while(appletbus == False and trials < 20):
+            print ".",
+            try:
+                appletbus = bus.get_object("org.ojuba.PersonalLock","/Manager")
+                break
+            except:
+                appletbus = False
+            time.sleep(1)
+            trials += 1
+        print "*"
+        print "already running ..."
+        exit(-1)
+    bus_name = dbus.service.BusName("org.ojuba.PersonalLock", bus)
+    bus_object = Manager(bus, '/Manager')
 
 
 def applet_main():
-  a=applet()
-  init_dbus()
-  Gtk.main()
+    a = applet()
+    init_dbus()
+    Gtk.main()
 
 if __name__ == "__main__":
-  applet_main()
+    applet_main()
 
