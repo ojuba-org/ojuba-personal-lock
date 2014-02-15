@@ -27,7 +27,7 @@ PyGTK+ front-end for fuse-encfs
 make %{?_smp_mflags}
 
 %install
-%makeinstall
+%makeinstall DESTDIR=$RPM_BUILD_ROOT
 
 %post
 touch --no-create %{_datadir}/icons/hicolor || :
