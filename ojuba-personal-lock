@@ -158,8 +158,9 @@ class applet(object):
         self.statusicon.set_visible(False)
         self.statusicon.set_visible(True)
         self.statusicon.set_from_file(os.path.join(datadir,'ojuba-personal-lock.svg'))
-
-        glib.timeout_add(5000, self._timer_cb)
+        ## FIXME: user timer and fix (Segmentation fault (core dumped)) error.
+        self._timer_cb()
+        #glib.timeout_add(5000, self._timer_cb)
 
     def _mount_check(self, enc_dir, dec_dir):
         return os.path.isdir(dec_dir) and \
