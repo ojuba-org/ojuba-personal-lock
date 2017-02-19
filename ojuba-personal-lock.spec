@@ -3,7 +3,7 @@
 Name:		ojuba-personal-lock
 Summary:	Folder Encrpytion GUI
 Summary(ar): خزنة أعجوبة الشخصية
-Version:	0.3
+Version:	0.3.1
 Release:	1%{?dist}
 License:	WAQFv2
 URL: http://ojuba.org
@@ -98,8 +98,8 @@ fi
 %{_datadir}/appdata/%{name}.appdata.xml
 
 %changelog
-* Sun Feb 19 2017 Mosaab Alzoubi <moceap@hotmail.com> - 0.3-1
-- Update to 0.3
+* Sun Feb 19 2017 Mosaab Alzoubi <moceap@hotmail.com> - 0.3.1-1
+- Update to 0.3.1
 - New way to Github
 - Add Appdata
 
