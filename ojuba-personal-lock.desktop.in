@@ -4,8 +4,8 @@ _Name=Ojuba Personal Lock
 _GenericName=Folders Encryption
 _Comment=Folders Encryption Tool
 Terminal=false
-TryExec=ojuba-personal-lock
-Exec=ojuba-personal-lock
+TryExec=env GDK_BACKEND=x11 ojuba-personal-lock
+Exec=env GDK_BACKEND=x11 ojuba-personal-lock
 Icon=ojuba-personal-lock
 Categories=GTK;System;Filesystem;
 StartupNotify=false
